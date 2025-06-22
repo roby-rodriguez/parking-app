@@ -4,28 +4,42 @@ import {useEffect, useState} from 'react';
 interface ParkingAccess {
 	id: string;
 	uuid: string;
-	gate_number: number;
 	guest_name: string | null;
 	valid_from: string;
 	valid_to: string;
 	status: 'active' | 'revoked' | 'expired';
-	created_at: string;
+	parking_lot_id: number;
+	parking_lots: {
+		name: string;
+		apartment: string;
+		gates: {
+			name: string;
+		}
+	}
 }
 
 interface AuditLog {
 	id: string;
-	parking_access_id: string;
 	action: string;
-	gate_number: number;
 	ip_address: string;
-	user_agent: string;
 	created_at: string;
+	gates: { name: string };
+	parking_access: { guest_name: string };
+}
+
+interface ParkingLot {
+	id: number;
+	name: string;
+	apartment: string;
+	gate_id: number;
+	gates: { name: string };
 }
 
 function Admin() {
 	const [session, setSession] = useState<any>(null);
 	const [parkingAccess, setParkingAccess] = useState<ParkingAccess[]>([]);
 	const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+	const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState<'access' | 'logs'>('access');
 	const [showLogin, setShowLogin] = useState(false);
@@ -35,7 +49,7 @@ function Admin() {
 	// Form state for creating/editing parking access
 	const [formData, setFormData] = useState({
 		guest_name: '',
-		gate_number: 1,
+		parking_lot_id: 0,
 		valid_from: '',
 		valid_to: '',
 	});
@@ -86,21 +100,29 @@ function Admin() {
 	const fetchData = async () => {
 		setLoading(true);
 		try {
-			// Fetch parking access
-			const {data: accessData} = await supabase
-				.from('parking_access')
-				.select('*')
-				.order('created_at', {ascending: false});
+			const { data: lotsData } = await supabase
+				.from('parking_lots')
+				.select(`*, gates (name)`)
+				.order('id');
+			if (lotsData) {
+				setParkingLots(lotsData);
+				// Set default parking lot in form if not already set
+				if (formData.parking_lot_id === 0 && lotsData.length > 0) {
+					setFormData(prev => ({ ...prev, parking_lot_id: lotsData[0].id }));
+				}
+			}
 
+			const { data: accessData } = await supabase
+				.from('parking_access')
+				.select(`*, parking_lots (name, apartment, gates (name))`)
+				.order('created_at', { ascending: false });
 			if (accessData) setParkingAccess(accessData);
 
-			// Fetch audit logs
-			const {data: logsData} = await supabase
+			const { data: logsData } = await supabase
 				.from('audit_logs')
-				.select('*')
-				.order('created_at', {ascending: false})
+				.select(`*, gates (name), parking_access (guest_name)`)
+				.order('created_at', { ascending: false })
 				.limit(50);
-
 			if (logsData) setAuditLogs(logsData);
 		} catch (error) {
 			console.error('Error fetching data:', error);
@@ -111,15 +133,8 @@ function Admin() {
 
 	const createParkingAccess = async () => {
 		try {
-			const {data, error} = await supabase
-				.from('parking_access')
-				.insert([formData])
-				.select()
-				.single();
-
-			if (error) throw error;
-
-			setParkingAccess([data, ...parkingAccess]);
+			await supabase.from('parking_access').insert([formData]);
+			fetchData();
 			resetForm();
 		} catch (error) {
 			console.error('Error creating parking access:', error);
@@ -130,18 +145,8 @@ function Admin() {
 		if (!editingId) return;
 
 		try {
-			const {data, error} = await supabase
-				.from('parking_access')
-				.update(formData)
-				.eq('id', editingId)
-				.select()
-				.single();
-
-			if (error) throw error;
-
-			setParkingAccess(parkingAccess.map(item =>
-				item.id === editingId ? data : item
-			));
+			await supabase.from('parking_access').update(formData).eq('id', editingId);
+			fetchData();
 			resetForm();
 		} catch (error) {
 			console.error('Error updating parking access:', error);
@@ -150,16 +155,8 @@ function Admin() {
 
 	const revokeParkingAccess = async (id: string) => {
 		try {
-			const {error} = await supabase
-				.from('parking_access')
-				.update({status: 'revoked'})
-				.eq('id', id);
-
-			if (error) throw error;
-
-			setParkingAccess(parkingAccess.map(item =>
-				item.id === id ? {...item, status: 'revoked'} : item
-			));
+			await supabase.from('parking_access').update({ status: 'revoked' }).eq('id', id);
+			fetchData();
 		} catch (error) {
 			console.error('Error revoking parking access:', error);
 		}
@@ -168,7 +165,7 @@ function Admin() {
 	const resetForm = () => {
 		setFormData({
 			guest_name: '',
-			gate_number: 1,
+			parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
 			valid_from: '',
 			valid_to: '',
 		});
@@ -178,7 +175,7 @@ function Admin() {
 	const startEditing = (item: ParkingAccess) => {
 		setFormData({
 			guest_name: item.guest_name || '',
-			gate_number: item.gate_number,
+			parking_lot_id: item.parking_lot_id,
 			valid_from: item.valid_from.split('T')[0],
 			valid_to: item.valid_to.split('T')[0],
 		});
@@ -328,13 +325,15 @@ function Admin() {
 											className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 										/>
 										<select
-											value={formData.gate_number}
-											onChange={(e) => setFormData({...formData, gate_number: parseInt(e.target.value)})}
-											className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+											value={formData.parking_lot_id}
+											onChange={(e) => setFormData({...formData, parking_lot_id: parseInt(e.target.value)})}
+											className="col-span-1 md:col-span-2 px-3 py-2 border border-gray-300 rounded-md"
 										>
-											<option value={1}>Gate 1</option>
-											<option value={2}>Gate 2</option>
-											<option value={3}>Gate 3</option>
+											{parkingLots.map(lot => (
+												<option key={lot.id} value={lot.id}>
+													{`Lot ${lot.name} (Gate: ${lot.gates.name}) - ${lot.apartment}`}
+												</option>
+											))}
 										</select>
 										<input
 											type="date"
@@ -378,7 +377,7 @@ function Admin() {
 													Guest
 												</th>
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-													Gate
+													Parking Lot
 												</th>
 												<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 													Valid Period
@@ -398,7 +397,7 @@ function Admin() {
 														{item.guest_name || 'Unnamed'}
 													</td>
 													<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-														Gate {item.gate_number}
+														{`Lot ${item.parking_lots.name} (Gate: ${item.parking_lots.gates.name})`}
 													</td>
 													<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
 														{formatDate(item.valid_from)} - {formatDate(item.valid_to)}
@@ -461,10 +460,10 @@ function Admin() {
 												Action
 											</th>
 											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												Gate
+												Guest
 											</th>
 											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												IP Address
+												Gate
 											</th>
 										</tr>
 										</thead>
@@ -477,11 +476,11 @@ function Admin() {
 												<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
 													{log.action}
 												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													Gate {log.gate_number}
+												<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+													{log.parking_access?.guest_name || 'N/A'}
 												</td>
 												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													{log.ip_address}
+													{log.gates?.name || 'N/A'}
 												</td>
 											</tr>
 										))}

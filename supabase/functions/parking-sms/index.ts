@@ -21,11 +21,11 @@ serve(async (req) => {
 	}
 
 	try {
-		const { uuid, gateNumber } = await req.json();
+		const { uuid } = await req.json();
 		
-		if (!uuid || !gateNumber) {
+		if (!uuid) {
 			return new Response(
-				JSON.stringify({ error: 'Missing uuid or gateNumber' }),
+				JSON.stringify({ error: 'Missing access token (uuid)' }),
 				{ status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 			);
 		}
@@ -36,15 +36,14 @@ serve(async (req) => {
 		const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 		// Initialize Redis for rate limiting
-		const redisUrl = Deno.env.get('REDIS_URL');
-		let redis: any = null;
-		if (redisUrl) {
-			try {
-				redis = await connectRedis(redisUrl);
-			} catch (error) {
-				console.error('Redis connection failed:', error);
-			}
-		}
+		const redis = await connectRedis({
+			hostname: Deno.env.get('REDIS_HOST')!,
+			port: Deno.env.get('REDIS_PORT')!,
+			password: Deno.env.get('REDIS_PASSWORD')!,
+		}).catch(err => {
+			console.error("Failed to connect to Redis:", err);
+			return null;
+		});
 
 		// Rate limiting (5 attempts per hour per UUID)
 		if (redis) {
@@ -59,16 +58,26 @@ serve(async (req) => {
 			await redis.setex(rateLimitKey, 3600, (parseInt(attempts || '0') + 1).toString());
 		}
 
-		// Validate parking access
-		const { data: parkingAccess, error: accessError } = await supabase
+		// Validate parking access and fetch related gate info
+		const { data: parkingInfo, error: accessError } = await supabase
 			.from('parking_access')
-			.select('*')
+			.select(`
+				*,
+				parking_lots (
+					id,
+					name,
+					gates (
+						id,
+						name,
+						phone_number
+					)
+				)
+			`)
 			.eq('uuid', uuid)
-			.eq('gate_number', gateNumber)
 			.eq('status', 'active')
 			.single();
 
-		if (accessError || !parkingAccess) {
+		if (accessError || !parkingInfo || !parkingInfo.parking_lots || !parkingInfo.parking_lots.gates) {
 			return new Response(
 				JSON.stringify({ error: 'Invalid or expired parking access' }),
 				{ status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -77,8 +86,8 @@ serve(async (req) => {
 
 		// Check if access is within valid time range
 		const now = new Date();
-		const validFrom = new Date(parkingAccess.valid_from);
-		const validTo = new Date(parkingAccess.valid_to);
+		const validFrom = new Date(parkingInfo.valid_from);
+		const validTo = new Date(parkingInfo.valid_to);
 
 		if (now < validFrom || now > validTo) {
 			return new Response(
@@ -91,17 +100,17 @@ serve(async (req) => {
 		const twilioAccountSid = Deno.env.get('TWILIO_ACCOUNT_SID');
 		const twilioAuthToken = Deno.env.get('TWILIO_AUTH_TOKEN');
 		const twilioPhoneNumber = Deno.env.get('TWILIO_PHONE_NUMBER');
-		const gatePhoneNumbers = Deno.env.get('GATE_PHONE_NUMBERS')?.split(',') || [];
+		const gatePhoneNumber = parkingInfo.parking_lots.gates.phone_number;
 
-		if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber || !gatePhoneNumbers[gateNumber - 1]) {
+		if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber || !gatePhoneNumber) {
+			console.error("Twilio or Gate phone number configuration is missing.");
 			return new Response(
-				JSON.stringify({ error: 'Twilio configuration missing' }),
+				JSON.stringify({ error: 'System configuration error.' }),
 				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 			);
 		}
 
 		// Make Twilio call to open gate
-		const gatePhoneNumber = gatePhoneNumbers[gateNumber - 1];
 		const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Calls.json`;
 		
 		const callResponse = await fetch(twilioUrl, {
@@ -113,10 +122,7 @@ serve(async (req) => {
 			body: new URLSearchParams({
 				'From': twilioPhoneNumber,
 				'To': gatePhoneNumber,
-				'Url': `${supabaseUrl}/functions/v1/gate-webhook`, // Webhook to handle call completion
-				'StatusCallback': `${supabaseUrl}/functions/v1/gate-webhook`,
-				'StatusCallbackEvent': 'completed',
-				'StatusCallbackMethod': 'POST',
+				'Url': `${supabaseUrl}/functions/v1/gate-webhook`, // A simple webhook that does nothing but hangs up
 			}),
 		});
 
@@ -134,9 +140,9 @@ serve(async (req) => {
 		const userAgent = req.headers.get('user-agent') || 'unknown';
 
 		await supabase.from('audit_logs').insert({
-			parking_access_id: parkingAccess.id,
+			parking_access_id: parkingInfo.id,
 			action: 'gate_opened',
-			gate_number: gateNumber,
+			gate_id: parkingInfo.parking_lots.gates.id,
 			ip_address: clientIp,
 			user_agent: userAgent,
 		});
@@ -144,8 +150,7 @@ serve(async (req) => {
 		return new Response(
 			JSON.stringify({ 
 				status: 'success', 
-				message: `Gate ${gateNumber} opening initiated`,
-				callSid: (await callResponse.json()).sid 
+				message: `Opening gate: ${parkingInfo.parking_lots.gates.name}`,
 			}),
 			{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
 		);

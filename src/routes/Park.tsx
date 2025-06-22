@@ -2,19 +2,24 @@ import {useParams} from 'react-router-dom';
 import {useEffect, useState} from 'react';
 import {supabase} from '../lib/supabaseClient';
 
-interface ParkingAccess {
+interface ParkingInfo {
 	id: string;
 	uuid: string;
-	gate_number: number;
 	guest_name: string | null;
 	valid_from: string;
 	valid_to: string;
-	status: 'active' | 'revoked' | 'expired';
+	parking_lots: {
+		name: string;
+		apartment: string;
+		gates: {
+			name: string;
+		};
+	};
 }
 
 export default function Park() {
 	const {uuid} = useParams<{ uuid: string }>();
-	const [parkingAccess, setParkingAccess] = useState<ParkingAccess | null>(null);
+	const [parkingInfo, setParkingInfo] = useState<ParkingInfo | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [opening, setOpening] = useState(false);
@@ -27,12 +32,20 @@ export default function Park() {
 			return;
 		}
 
-		// Fetch parking access data from Supabase
-		const fetchParkingAccess = async () => {
+		const fetchParkingInfo = async () => {
 			try {
 				const {data, error} = await supabase
 					.from('parking_access')
-					.select('*')
+					.select(`
+						*,
+						parking_lots (
+							name,
+							apartment,
+							gates (
+								name
+							)
+						)
+					`)
 					.eq('uuid', uuid)
 					.eq('status', 'active')
 					.single();
@@ -42,7 +55,6 @@ export default function Park() {
 					return;
 				}
 
-				// Check if access is within valid time range
 				const now = new Date();
 				const validFrom = new Date(data.valid_from);
 				const validTo = new Date(data.valid_to);
@@ -57,7 +69,7 @@ export default function Park() {
 					return;
 				}
 
-				setParkingAccess(data);
+				setParkingInfo(data);
 			} catch (err) {
 				setError('Failed to load parking access');
 			} finally {
@@ -65,37 +77,29 @@ export default function Park() {
 			}
 		};
 
-		fetchParkingAccess();
+		fetchParkingInfo();
 	}, [uuid]);
 
 	const openGate = async () => {
-		if (!parkingAccess || opening) return;
+		if (!parkingInfo || opening) return;
 
 		setOpening(true);
 		setLastAction(null);
 
 		try {
-			const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parking-sms`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-				},
-				body: JSON.stringify({
-					uuid: parkingAccess.uuid,
-					gateNumber: parkingAccess.gate_number,
-				}),
+			const {data, error} = await supabase.functions.invoke('parking-sms', {
+				body: {uuid: parkingInfo.uuid},
 			});
 
-			const result = await response.json();
+			if (error) throw error;
 
-			if (response.ok) {
-				setLastAction(`Gate ${parkingAccess.gate_number} opening initiated successfully!`);
+			if (data.error) {
+				setLastAction(`Error: ${data.error}`);
 			} else {
-				setLastAction(`Error: ${result.error}`);
+				setLastAction(data.message);
 			}
-		} catch (err) {
-			setLastAction('Failed to open gate. Please try again.');
+		} catch (err: any) {
+			setLastAction(err.message || 'Failed to open gate. Please try again.');
 		} finally {
 			setOpening(false);
 		}
@@ -127,7 +131,7 @@ export default function Park() {
 		);
 	}
 
-	if (!parkingAccess) {
+	if (!parkingInfo) {
 		return (
 			<div className="min-h-screen flex items-center justify-center bg-gray-50">
 				<div className="text-center">
@@ -153,8 +157,8 @@ export default function Park() {
 					<h1 className="text-2xl font-bold text-gray-900 mb-2">
 						Parking Access
 					</h1>
-					{parkingAccess.guest_name && (
-						<p className="text-gray-600">Welcome, {parkingAccess.guest_name}</p>
+					{parkingInfo.guest_name && (
+						<p className="text-gray-600">Welcome, {parkingInfo.guest_name}</p>
 					)}
 				</div>
 
@@ -163,7 +167,16 @@ export default function Park() {
 						<div className="flex justify-between items-center">
 							<span className="text-gray-600">Gate:</span>
 							<span className="font-semibold text-blue-900">
-								Gate {parkingAccess.gate_number}
+								{parkingInfo.parking_lots.gates.name}
+							</span>
+						</div>
+					</div>
+
+					<div className="bg-indigo-50 p-4 rounded-lg">
+						<div className="flex justify-between items-center">
+							<span className="text-gray-600">Parking Lot:</span>
+							<span className="font-semibold text-indigo-900">
+								{parkingInfo.parking_lots.name} ({parkingInfo.parking_lots.apartment})
 							</span>
 						</div>
 					</div>
@@ -172,7 +185,7 @@ export default function Park() {
 						<div className="text-center">
 							<p className="text-gray-600 text-sm mb-1">Valid Period</p>
 							<p className="font-semibold text-green-900">
-								{formatDate(parkingAccess.valid_from)} - {formatDate(parkingAccess.valid_to)}
+								{formatDate(parkingInfo.valid_from)} - {formatDate(parkingInfo.valid_to)}
 							</p>
 						</div>
 					</div>
