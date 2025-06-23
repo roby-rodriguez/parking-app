@@ -7,9 +7,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
 import {serve} from 'https://deno.land/std@0.168.0/http/server.ts';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
-import {connect as connectRedis} from 'https://deno.land/x/redis@v0.29.3/mod.ts';
-// Import Twilio SDK via npm
-import twilio from "npm:twilio";
+import {Redis as UpstashRedis} from 'https://deno.land/x/upstash_redis@v1.19.3/mod.ts';
 
 // @ts-nocheck
 // deno-lint-ignore-file
@@ -55,21 +53,22 @@ serve(async (req) => {
 		const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 		const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-		// Initialize Redis for rate limiting
-		const redisUrl = Deno.env.get('REDIS_URL');
+		// Initialize Upstash Redis for rate limiting
 		let redis: any = null;
-		if (redisUrl) {
+		const upstashUrl = Deno.env.get('UPSTASH_REDIS_REST_URL');
+		const upstashToken = Deno.env.get('UPSTASH_REDIS_REST_TOKEN');
+		if (upstashUrl && upstashToken) {
 			try {
-				redis = await connectRedis(redisUrl);
+				redis = new UpstashRedis({url: upstashUrl, token: upstashToken});
 			} catch (error) {
-				console.error('Redis connection failed:', error);
+				console.error('Upstash Redis init failed:', error);
 			}
 		}
 
 		// Rate limiting (5 attempts per hour per UUID)
 		if (redis) {
 			const rateLimitKey = `rate_limit:${uuid}`;
-			const attempts = await redis.get(rateLimitKey);
+			let attempts = await redis.get(rateLimitKey);
 			if (attempts && parseInt(attempts) >= 5) {
 				return new Response(
 					JSON.stringify({error: 'Rate limit exceeded. Try again later.'}),
@@ -131,18 +130,24 @@ serve(async (req) => {
 			);
 		}
 
-		// Make Twilio call to open gate using Twilio npm package
-		const client = twilio(twilioAccountSid, twilioAuthToken);
-		let callResponse;
-		try {
-			callResponse = await client.calls.create({
-				from: twilioPhoneNumber,
-				to: gatePhoneNumber,
-				url: `${supabaseUrl}/functions/v1/parking-sms/gate-webhook`,
-				// Optionally, you can set timeout: 10 (seconds) here if you want
-			});
-		} catch (err) {
-			console.error('Twilio call failed:', err);
+		// Make Twilio call to open gate (original fetch version)
+		const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Calls.json`;
+		const callResponse = await fetch(twilioUrl, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Basic ${btoa(`${twilioAccountSid}:${twilioAuthToken}`)}`,
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: new URLSearchParams({
+				'From': twilioPhoneNumber,
+				'To': gatePhoneNumber,
+				'Url': `${supabaseUrl}/functions/v1/parking-sms/gate-webhook`,
+			}),
+		});
+
+		if (!callResponse.ok) {
+			const errorText = await callResponse.text();
+			console.error('Twilio call failed:', errorText);
 			return new Response(
 				JSON.stringify({error: 'Failed to open gate'}),
 				{status: 500, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
