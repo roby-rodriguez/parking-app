@@ -5,28 +5,48 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { connect as connectRedis } from 'https://deno.land/x/redis@v0.29.3/mod.ts';
+import {serve} from 'https://deno.land/std@0.168.0/http/server.ts';
+import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
+import {connect as connectRedis} from 'https://deno.land/x/redis@v0.29.3/mod.ts';
+// Import Twilio SDK via npm
+import twilio from "npm:twilio";
+
+// @ts-nocheck
+// deno-lint-ignore-file
+/// <reference types="deno" />
 
 const corsHeaders = {
 	'Access-Control-Allow-Origin': '*',
 	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Serve both the main function and the TwiML webhook
 serve(async (req) => {
+	const url = new URL(req.url);
+
+	// TwiML webhook for Twilio call instructions
+	if (url.pathname === '/gate-webhook') {
+		const ringSeconds = parseInt(Deno.env.get('GATE_RING_SECONDS') || '2', 10);
+		const twiml = `<?xml version="1.0" encoding="UTF-8"?>\n<Response>\n  <Pause length="${ringSeconds}"/>\n  <Hangup/>\n</Response>`;
+		return new Response(twiml, {
+			headers: {
+				'Content-Type': 'application/xml',
+			},
+		});
+	}
+
 	// Handle CORS preflight requests
 	if (req.method === 'OPTIONS') {
-		return new Response('ok', { headers: corsHeaders });
+		return new Response('ok', {headers: corsHeaders});
 	}
 
 	try {
-		const { uuid } = await req.json();
-		
+		const {uuid} = await req.json();
+
 		if (!uuid) {
 			return new Response(
-				JSON.stringify({ error: 'Missing access token (uuid)' }),
-				{ status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				JSON.stringify({error: 'Missing access token (uuid)'}),
+				{status: 400, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
 			);
 		}
 
@@ -36,14 +56,15 @@ serve(async (req) => {
 		const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 		// Initialize Redis for rate limiting
-		const redis = await connectRedis({
-			hostname: Deno.env.get('REDIS_HOST')!,
-			port: Deno.env.get('REDIS_PORT')!,
-			password: Deno.env.get('REDIS_PASSWORD')!,
-		}).catch(err => {
-			console.error("Failed to connect to Redis:", err);
-			return null;
-		});
+		const redisUrl = Deno.env.get('REDIS_URL');
+		let redis: any = null;
+		if (redisUrl) {
+			try {
+				redis = await connectRedis(redisUrl);
+			} catch (error) {
+				console.error('Redis connection failed:', error);
+			}
+		}
 
 		// Rate limiting (5 attempts per hour per UUID)
 		if (redis) {
@@ -51,15 +72,15 @@ serve(async (req) => {
 			const attempts = await redis.get(rateLimitKey);
 			if (attempts && parseInt(attempts) >= 5) {
 				return new Response(
-					JSON.stringify({ error: 'Rate limit exceeded. Try again later.' }),
-					{ status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+					JSON.stringify({error: 'Rate limit exceeded. Try again later.'}),
+					{status: 429, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
 				);
 			}
 			await redis.setex(rateLimitKey, 3600, (parseInt(attempts || '0') + 1).toString());
 		}
 
 		// Validate parking access and fetch related gate info
-		const { data: parkingInfo, error: accessError } = await supabase
+		const {data: parkingInfo, error: accessError} = await supabase
 			.from('parking_access')
 			.select(`
 				*,
@@ -79,8 +100,8 @@ serve(async (req) => {
 
 		if (accessError || !parkingInfo || !parkingInfo.parking_lots || !parkingInfo.parking_lots.gates) {
 			return new Response(
-				JSON.stringify({ error: 'Invalid or expired parking access' }),
-				{ status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				JSON.stringify({error: 'Invalid or expired parking access'}),
+				{status: 404, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
 			);
 		}
 
@@ -91,8 +112,8 @@ serve(async (req) => {
 
 		if (now < validFrom || now > validTo) {
 			return new Response(
-				JSON.stringify({ error: 'Parking access is not valid at this time' }),
-				{ status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				JSON.stringify({error: 'Parking access is not valid at this time'}),
+				{status: 403, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
 			);
 		}
 
@@ -105,33 +126,26 @@ serve(async (req) => {
 		if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber || !gatePhoneNumber) {
 			console.error("Twilio or Gate phone number configuration is missing.");
 			return new Response(
-				JSON.stringify({ error: 'System configuration error.' }),
-				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				JSON.stringify({error: 'System configuration error.'}),
+				{status: 500, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
 			);
 		}
 
-		// Make Twilio call to open gate
-		const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Calls.json`;
-		
-		const callResponse = await fetch(twilioUrl, {
-			method: 'POST',
-			headers: {
-				'Authorization': `Basic ${btoa(`${twilioAccountSid}:${twilioAuthToken}`)}`,
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			body: new URLSearchParams({
-				'From': twilioPhoneNumber,
-				'To': gatePhoneNumber,
-				'Url': `${supabaseUrl}/functions/v1/gate-webhook`, // A simple webhook that does nothing but hangs up
-			}),
-		});
-
-		if (!callResponse.ok) {
-			const errorText = await callResponse.text();
-			console.error('Twilio call failed:', errorText);
+		// Make Twilio call to open gate using Twilio npm package
+		const client = twilio(twilioAccountSid, twilioAuthToken);
+		let callResponse;
+		try {
+			callResponse = await client.calls.create({
+				from: twilioPhoneNumber,
+				to: gatePhoneNumber,
+				url: `${supabaseUrl}/functions/v1/parking-sms/gate-webhook`,
+				// Optionally, you can set timeout: 10 (seconds) here if you want
+			});
+		} catch (err) {
+			console.error('Twilio call failed:', err);
 			return new Response(
-				JSON.stringify({ error: 'Failed to open gate' }),
-				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+				JSON.stringify({error: 'Failed to open gate'}),
+				{status: 500, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
 			);
 		}
 
@@ -148,18 +162,18 @@ serve(async (req) => {
 		});
 
 		return new Response(
-			JSON.stringify({ 
-				status: 'success', 
+			JSON.stringify({
+				status: 'success',
 				message: `Opening gate: ${parkingInfo.parking_lots.gates.name}`,
 			}),
-			{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+			{status: 200, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
 		);
 
 	} catch (error) {
 		console.error('Error in parking-sms function:', error);
 		return new Response(
-			JSON.stringify({ error: 'Internal server error' }),
-			{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+			JSON.stringify({error: 'Internal server error'}),
+			{status: 500, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
 		);
 	}
 });
