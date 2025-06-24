@@ -23,11 +23,11 @@ export default function Admin() {
 	const { auditLogs, loading: logsLoading } = useAuditLogs();
 	const [activeTab, setActiveTab] = useState<'access' | 'logs'>('access');
 	const [showLogin, setShowLogin] = useState(false);
-	
+
 	// Login state
 	const [loginData, setLoginData] = useState<LoginData>({ email: '', password: '' });
 	const [loginError, setLoginError] = useState<string | null>(null);
-	
+
 	// Form state
 	const [formData, setFormData] = useState<ParkingAccessFormData>({
 		guest_name: '',
@@ -119,37 +119,40 @@ export default function Admin() {
 	const isLoading = lotsLoading || accessLoading || logsLoading;
 
 	return (
-		<div className="min-h-screen bg-gray-50">
-			<AdminHeader onSignOut={logout} />
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-				<AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-				{isLoading ? (
-					<AdminLoading />
-				) : (
-					<div className="mt-8">
-						{activeTab === 'access' ? (
-							<div className="space-y-8">
-								<ParkingAccessForm
-									formData={formData}
-									parkingLots={parkingLots}
-									onChange={setFormData}
-									onSubmit={handleSubmit}
-									onCancel={handleCancel}
-									editingId={editingId}
-								/>
-								<ParkingAccessList
-									parkingAccess={parkingAccess}
-									onEdit={handleEdit}
-									onRevoke={handleRevoke}
-									formatDate={formatDate}
-								/>
-							</div>
+		<div className="h-full bg-gray-50 p-4 sm:p-6 lg:p-8">
+			<div className="max-w-7xl mx-auto">
+				<div className="bg-white shadow rounded-lg">
+					<AdminHeader onSignOut={logout} />
+					<AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+					<div className="p-8">
+						{isLoading ? (
+							<AdminLoading />
 						) : (
-							<AuditLogsTable auditLogs={auditLogs} formatDateTime={formatDateTime} />
+							<div className="mt-8">
+								{activeTab === 'access' ? (
+									<div className="space-y-8">
+										<ParkingAccessForm
+											formData={formData}
+											parkingLots={parkingLots}
+											onChange={setFormData}
+											onSubmit={handleSubmit}
+											onCancel={handleCancel}
+											editingId={editingId}
+										/>
+										<ParkingAccessList
+											parkingAccess={parkingAccess}
+											onEdit={handleEdit}
+											onRevoke={handleRevoke}
+											formatDate={formatDate}
+										/>
+									</div>
+								) : (
+									<AuditLogsTable auditLogs={auditLogs} formatDateTime={formatDateTime} />
+								)}
+							</div>
 						)}
 					</div>
-				)}
+				</div>
 			</div>
 		</div>
 	);
