@@ -5,9 +5,9 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
-import {serve} from 'https://deno.land/std@0.168.0/http/server.ts';
-import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
-import {Redis as UpstashRedis} from 'https://deno.land/x/upstash_redis@v1.19.3/mod.ts';
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { Redis as UpstashRedis } from 'https://deno.land/x/upstash_redis@v1.19.3/mod.ts';
 
 // @ts-nocheck
 // deno-lint-ignore-file

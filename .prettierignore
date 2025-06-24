@@ -1,8 +1,8 @@
 # Add files here to ignore them from prettier formatting
 .venv
-node_modules
-dist
-build
+node_modules/
+dist/
+build/
 coverage
 *.snap
 *.png
@@ -10,3 +10,23 @@ coverage
 *.ico
 *.lock
 supabase/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Package files
+package-lock.json
+yarn.lock
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

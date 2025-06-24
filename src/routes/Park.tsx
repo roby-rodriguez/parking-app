@@ -1,6 +1,6 @@
-import {useParams} from 'react-router-dom';
-import {useEffect, useState} from 'react';
-import {supabase} from '../lib/supabaseClient';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 
 interface ParkingInfo {
 	id: string;
@@ -18,7 +18,7 @@ interface ParkingInfo {
 }
 
 export default function Park() {
-	const {uuid} = useParams<{ uuid: string }>();
+	const { uuid } = useParams<{ uuid: string }>();
 	const [parkingInfo, setParkingInfo] = useState<ParkingInfo | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -32,11 +32,12 @@ export default function Park() {
 			return;
 		}
 
-		const fetchParkingInfo = async () => {
+		const fetchParkingInfo = async() => {
 			try {
-				const {data, error} = await supabase
+				const { data, error } = await supabase
 					.from('parking_access')
-					.select(`
+					.select(
+						`
 						*,
 						parking_lots (
 							name,
@@ -45,7 +46,8 @@ export default function Park() {
 								name
 							)
 						)
-					`)
+					`,
+					)
 					.eq('uuid', uuid)
 					.eq('status', 'active')
 					.single();
@@ -80,15 +82,15 @@ export default function Park() {
 		fetchParkingInfo();
 	}, [uuid]);
 
-	const openGate = async () => {
+	const openGate = async() => {
 		if (!parkingInfo || opening) return;
 
 		setOpening(true);
 		setLastAction(null);
 
 		try {
-			const {data, error} = await supabase.functions.invoke('parking-sms', {
-				body: {uuid: parkingInfo.uuid},
+			const { data, error } = await supabase.functions.invoke('parking-sms', {
+				body: { uuid: parkingInfo.uuid },
 			});
 
 			if (error) throw error;
@@ -107,7 +109,7 @@ export default function Park() {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50">
+			<div className="h-full flex items-center justify-center bg-gray-50">
 				<div className="text-center">
 					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
 					<p className="mt-4 text-gray-600">Loading parking access...</p>
@@ -118,7 +120,7 @@ export default function Park() {
 
 	if (error) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50">
+			<div className="h-full flex items-center justify-center bg-gray-50">
 				<div className="text-center max-w-md mx-auto p-6">
 					<div className="text-red-500 text-6xl mb-4">⚠️</div>
 					<h1 className="text-2xl font-bold text-gray-900 mb-4">Access Error</h1>
@@ -133,7 +135,7 @@ export default function Park() {
 
 	if (!parkingInfo) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gray-50">
+			<div className="h-full flex items-center justify-center bg-gray-50">
 				<div className="text-center">
 					<p className="text-gray-600">Parking access not found.</p>
 				</div>
@@ -150,13 +152,11 @@ export default function Park() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+		<div className="h-full bg-gray-50 flex items-center justify-center p-4">
 			<div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
 				<div className="text-center mb-8">
 					<div className="text-6xl mb-4">🚗</div>
-					<h1 className="text-2xl font-bold text-gray-900 mb-2">
-						Parking Access
-					</h1>
+					<h1 className="text-2xl font-bold text-gray-900 mb-2">Parking Access</h1>
 					{parkingInfo.guest_name && (
 						<p className="text-gray-600">Welcome, {parkingInfo.guest_name}</p>
 					)}
@@ -176,7 +176,8 @@ export default function Park() {
 						<div className="flex justify-between items-center">
 							<span className="text-gray-600">Parking Lot:</span>
 							<span className="font-semibold text-indigo-900">
-								{parkingInfo.parking_lots.name} ({parkingInfo.parking_lots.apartment})
+								{parkingInfo.parking_lots.name} (
+								{parkingInfo.parking_lots.apartment})
 							</span>
 						</div>
 					</div>
@@ -185,7 +186,8 @@ export default function Park() {
 						<div className="text-center">
 							<p className="text-gray-600 text-sm mb-1">Valid Period</p>
 							<p className="font-semibold text-green-900">
-								{formatDate(parkingInfo.valid_from)} - {formatDate(parkingInfo.valid_to)}
+								{formatDate(parkingInfo.valid_from)} -{' '}
+								{formatDate(parkingInfo.valid_to)}
 							</p>
 						</div>
 					</div>
@@ -211,11 +213,13 @@ export default function Park() {
 				</button>
 
 				{lastAction && (
-					<div className={`mt-4 p-3 rounded-lg text-sm ${
-						lastAction.includes('Error')
-							? 'bg-red-50 text-red-700'
-							: 'bg-green-50 text-green-700'
-					}`}>
+					<div
+						className={`mt-4 p-3 rounded-lg text-sm ${
+							lastAction.includes('Error')
+								? 'bg-red-50 text-red-700'
+								: 'bg-green-50 text-green-700'
+						}`}
+					>
 						{lastAction}
 					</div>
 				)}
