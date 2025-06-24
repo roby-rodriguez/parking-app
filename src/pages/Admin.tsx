@@ -9,7 +9,7 @@ import {
 	ParkingAccessList,
 } from '@/components/admin';
 import { useAuditLogs, useAuth, useParkingAccess, useParkingLots } from '@/hooks';
-import { ParkingAccessFormData, LoginData, ParkingAccess } from '@/types';
+import { LoginData, ParkingAccess, ParkingAccessFormData } from '@/types';
 
 export default function Admin() {
 	const { session, loading: authLoading, login, logout } = useAuth();
@@ -120,11 +120,11 @@ export default function Admin() {
 
 	return (
 		<div className="h-full bg-gray-50 p-4 sm:p-6 lg:p-8">
-			<div className="max-w-7xl mx-auto">
-				<div className="bg-white shadow rounded-lg">
+			<div className="h-full max-w-7xl mx-auto">
+				<div className="h-full bg-white flex flex-col shadow rounded-lg">
 					<AdminHeader onSignOut={logout} />
 					<AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-					<div className="p-8">
+					<div className="p-8 flex-1">
 						{isLoading ? (
 							<AdminLoading />
 						) : (
@@ -147,7 +147,10 @@ export default function Admin() {
 										/>
 									</div>
 								) : (
-									<AuditLogsTable auditLogs={auditLogs} formatDateTime={formatDateTime} />
+									<AuditLogsTable
+										auditLogs={auditLogs}
+										formatDateTime={formatDateTime}
+									/>
 								)}
 							</div>
 						)}
