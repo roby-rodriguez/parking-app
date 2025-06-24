@@ -1,39 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
-
-interface ParkingAccess {
-	id: string;
-	uuid: string;
-	guest_name: string | null;
-	valid_from: string;
-	valid_to: string;
-	status: 'active' | 'revoked' | 'expired';
-	parking_lot_id: number;
-	parking_lots: {
-		name: string;
-		apartment: string;
-		gates: {
-			name: string;
-		};
-	};
-}
-
-interface AuditLog {
-	id: string;
-	action: string;
-	ip_address: string;
-	created_at: string;
-	gates: { name: string };
-	parking_access: { guest_name: string };
-}
-
-interface ParkingLot {
-	id: number;
-	name: string;
-	apartment: string;
-	gate_id: number;
-	gates: { name: string };
-}
+import { AuditLog, LoginData, ParkingAccess, ParkingAccessFormData, ParkingLot } from '../types';
 
 function Admin() {
 	const [session, setSession] = useState<any>(null);
@@ -43,11 +10,11 @@ function Admin() {
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState<'access' | 'logs'>('access');
 	const [showLogin, setShowLogin] = useState(false);
-	const [loginData, setLoginData] = useState({ email: '', password: '' });
+	const [loginData, setLoginData] = useState<LoginData>({ email: '', password: '' });
 	const [loginError, setLoginError] = useState<string | null>(null);
 
 	// Form state for creating/editing parking access
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<ParkingAccessFormData>({
 		guest_name: '',
 		parking_lot_id: 0,
 		valid_from: '',

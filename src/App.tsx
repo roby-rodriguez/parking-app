@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import Admin from './routes/Admin';
-import Park from './routes/Park';
+import Admin from './pages/Admin';
+import Park from './pages/Park';
 import './App.scss';
 
 function App() {

@@ -1,21 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
-
-interface ParkingInfo {
-	id: string;
-	uuid: string;
-	guest_name: string | null;
-	valid_from: string;
-	valid_to: string;
-	parking_lots: {
-		name: string;
-		apartment: string;
-		gates: {
-			name: string;
-		};
-	};
-}
+import { ParkingInfo } from '../types';
 
 export default function Park() {
 	const { uuid } = useParams<{ uuid: string }>();
