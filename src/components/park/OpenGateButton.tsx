@@ -12,7 +12,7 @@ const OpenGateButton: React.FC<OpenGateButtonProps> = ({ onOpen, disabled, loadi
 		<button
 			onClick={onOpen}
 			disabled={disabled}
-			className={`w-full py-4 px-6 rounded-lg font-semibold text-white transition-all duration-200 transform hover:scale-105 active:scale-95 ${
+			className={`w-full py-4 px-6 rounded-lg font-semibold text-white ${
 				loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 active:bg-green-800'
 			}`}
 			aria-label={loading ? 'Opening gate, please wait' : 'Open parking gate'}
@@ -29,7 +29,7 @@ const OpenGateButton: React.FC<OpenGateButtonProps> = ({ onOpen, disabled, loadi
 		</button>
 		{lastAction && (
 			<div
-				className={`mt-4 p-3 rounded-lg text-sm animate-in slide-in-from-top-2 ${
+				className={`mt-4 p-3 rounded-lg text-sm ${
 					lastAction.includes('Error')
 						? 'bg-red-50 text-red-700 border border-red-200'
 						: 'bg-green-50 text-green-700 border border-green-200'
