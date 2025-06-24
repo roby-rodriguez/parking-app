@@ -27,8 +27,7 @@ export default function Park() {
 
 	return (
 		<div className="h-full bg-gray-50 flex items-center justify-center p-4">
-			<div className="space-y-4 animate-in fade-in duration-500">
-				<ParkingInfoCard parkingInfo={parkingInfo} />
+			<ParkingInfoCard parkingInfo={parkingInfo}>
 				<OpenGateButton
 					onOpen={openGate}
 					disabled={opening}
@@ -40,7 +39,7 @@ export default function Park() {
 						This access is valid for your entire stay.
 					</p>
 				</div>
-			</div>
+			</ParkingInfoCard>
 		</div>
 	);
 }
