@@ -68,14 +68,39 @@ serve(async (req) => {
 		// Rate limiting (5 attempts per hour per UUID)
 		if (redis) {
 			const rateLimitKey = `rate_limit:${uuid}`;
-			let attempts = await redis.get(rateLimitKey);
-			if (attempts && parseInt(attempts) >= 5) {
-				return new Response(
-					JSON.stringify({error: 'Rate limit exceeded. Try again later.'}),
-					{status: 429, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
-				);
+			try {
+				// Add explicit logging for debugging
+				// console.log(`Checking rate limit for key: ${rateLimitKey}`);
+				let attempts = await redis.get(rateLimitKey);
+				// console.log(`Current attempts from Redis: ${attempts} (type: ${typeof attempts})`);
+				// Handle both string and number returns from Redis
+				const currentAttempts = attempts ? parseInt(String(attempts)) : 0;
+				// console.log(`Parsed attempts: ${currentAttempts}`);
+				if (currentAttempts >= 5) {
+					// console.log(`Rate limit exceeded for ${uuid}: ${currentAttempts} attempts`);
+					return new Response(JSON.stringify({
+						error: 'Rate limit exceeded. Try again later.'
+					}), {
+						status: 429,
+						headers: {
+							...corsHeaders,
+							'Content-Type': 'application/json'
+						}
+					});
+				}
+				// Increment and set with explicit error handling
+				const newAttempts = currentAttempts + 1;
+				// console.log(`Setting new attempt count: ${newAttempts}`);
+				const setResult = await redis.setex(rateLimitKey, 3600, newAttempts.toString());
+				// console.log(`Redis setex result:`, setResult);
+			} catch (redisError) {
+				console.error('Redis operation failed:', redisError);
+				// Decide whether to continue without rate limiting or fail
+				// For now, let's continue but log the error
+				// console.log('Continuing without rate limiting due to Redis error');
 			}
-			await redis.setex(rateLimitKey, 3600, (parseInt(attempts || '0') + 1).toString());
+		} else {
+			console.log('Redis not initialized - skipping rate limiting');
 		}
 
 		// Validate parking access and fetch related gate info
