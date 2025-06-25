@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { ParkingAccess, ParkingAccessFormData } from '@/types';
+import { getEffectiveStatus } from '@/utils/statusUtils';
 
 interface UseParkingAccessReturn {
 	parkingAccess: ParkingAccess[];
@@ -22,17 +23,34 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		setError(null);
 
 		try {
+			// Use the view with computed status for better accuracy
 			const { data, error: fetchError } = await supabase
-				.from('parking_access')
+				.from('parking_access_with_computed_status')
 				.select('*, parking_lots (name, apartment, gates (name))')
 				.order('created_at', { ascending: false });
 
 			if (fetchError) {
-				setError('Failed to load parking access');
-				return;
-			}
+				// Fallback to regular table if view doesn't exist
+				const { data: fallbackData, error: fallbackError } = await supabase
+					.from('parking_access')
+					.select('*, parking_lots (name, apartment, gates (name))')
+					.order('created_at', { ascending: false });
 
-			setParkingAccess(data || []);
+				if (fallbackError) {
+					setError('Failed to load parking access');
+					return;
+				}
+
+				// Add computed status to each record
+				const recordsWithComputedStatus = (fallbackData || []).map(record => ({
+					...record,
+					computed_status: getEffectiveStatus(record)
+				}));
+
+				setParkingAccess(recordsWithComputedStatus);
+			} else {
+				setParkingAccess(data || []);
+			}
 		} catch (err) {
 			setError('Failed to load parking access');
 		} finally {

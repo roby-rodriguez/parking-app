@@ -77,6 +77,16 @@ export default [
 			'space-in-parens': ['error', 'never'],
 			'space-infix-ops': 'error',
 			'arrow-spacing': ['error', { before: true, after: true }],
+			// Switch statement rules
+			'switch-colon-spacing': ['error', { after: true, before: false }],
+			'no-fallthrough': 'error',
+			'no-case-declarations': 'error',
+			// Additional formatting rules
+			'brace-style': ['error', '1tbs', { allowSingleLine: true }],
+			'curly': ['error', 'all'],
+			'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
+			'eol-last': 'error',
+			'no-trailing-spaces': 'error',
 			'import/no-duplicates': 'error',
 			'import/order': [
 				'error',

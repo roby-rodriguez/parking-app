@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { ParkingInfo } from '@/types';
+import { calculateParkingStatus } from '@/utils/statusUtils';
 
 interface UseParkingInfoReturn {
 	parkingInfo: ParkingInfo | null;
@@ -46,28 +47,37 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 				`,
 				)
 				.eq('uuid', uuid)
-				.eq('status', 'active')
 				.single();
 
 			if (fetchError) {
-				setError('Parking access not found or expired');
+				setError('Parking access not found');
 				return;
 			}
 
-			const now = new Date();
-			const validFrom = new Date(data.valid_from);
-			const validTo = new Date(data.valid_to);
+			// Calculate current status
+			const currentStatus = calculateParkingStatus(
+				data.valid_from,
+				data.valid_to,
+				data.status,
+			);
 
-			if (now < validFrom) {
-				setError('Parking access is not yet valid');
+			// Check if access is valid based on calculated status
+			if (currentStatus === 'revoked') {
+				setError('Parking access has been revoked');
 				return;
 			}
 
-			if (now > validTo) {
+			if (currentStatus === 'expired') {
 				setError('Parking access has expired');
 				return;
 			}
 
+			if (currentStatus === 'pending') {
+				setError('Parking access is not yet valid');
+				return;
+			}
+
+			// Status is 'active', so access is valid
 			setParkingInfo(data);
 		} catch (err) {
 			setError('Failed to load parking access');
@@ -117,4 +127,4 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 		refetch: fetchParkingInfo,
 		isValid,
 	};
-}; 
+};

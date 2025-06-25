@@ -1,5 +1,6 @@
 import React from 'react';
 import { ParkingAccess } from '@/types';
+import { getEffectiveStatus, getStatusColorClasses, getStatusLabel } from '@/utils/statusUtils';
 
 type ParkingAccessListProps = {
 	parkingAccess: ParkingAccess[];
@@ -38,56 +39,61 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 					</tr>
 				</thead>
 				<tbody className="bg-white divide-y divide-gray-200">
-					{parkingAccess.map((item) => (
-						<tr key={item.id}>
-							<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-								{item.guest_name || 'Unnamed'}
-							</td>
-							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`Lot ${item.parking_lots.name} (Gate: ${item.parking_lots.gates.name})`}</td>
-							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-								{formatDate(item.valid_from)} - {formatDate(item.valid_to)}
-							</td>
-							<td className="px-6 py-4 whitespace-nowrap">
-								<span
-									className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-										item.status === 'active'
-											? 'bg-green-100 text-green-800'
-											: item.status === 'revoked'
-												? 'bg-red-100 text-red-800'
-												: 'bg-gray-100 text-gray-800'
-									}`}
-								>
-									{item.status}
-								</span>
-							</td>
-							<td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-								{item.status === 'active' && (
-									<>
+					{parkingAccess.map((item) => {
+						const effectiveStatus = getEffectiveStatus(item);
+						return (
+							<tr key={item.id}>
+								<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+									{item.guest_name || 'Unnamed'}
+								</td>
+								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`Lot ${item.parking_lots.name} (Gate: ${item.parking_lots.gates.name})`}</td>
+								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									{formatDate(item.valid_from)} - {formatDate(item.valid_to)}
+								</td>
+								<td className="px-6 py-4 whitespace-nowrap">
+									<span
+										className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColorClasses(effectiveStatus)}`}
+									>
+										{getStatusLabel(effectiveStatus)}
+									</span>
+								</td>
+								<td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+									{effectiveStatus === 'active' && (
+										<>
+											<button
+												onClick={() => onEdit(item)}
+												className="text-blue-600 hover:text-blue-900"
+											>
+												Edit
+											</button>
+											<button
+												onClick={() => onRevoke(item.id)}
+												className="text-red-600 hover:text-red-900"
+											>
+												Revoke
+											</button>
+										</>
+									)}
+									{effectiveStatus === 'pending' && (
 										<button
 											onClick={() => onEdit(item)}
 											className="text-blue-600 hover:text-blue-900"
 										>
 											Edit
 										</button>
-										<button
-											onClick={() => onRevoke(item.id)}
-											className="text-red-600 hover:text-red-900"
-										>
-											Revoke
-										</button>
-									</>
-								)}
-								<a
-									href={`/park/${item.uuid}`}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="text-green-600 hover:text-green-900"
-								>
-									View
-								</a>
-							</td>
-						</tr>
-					))}
+									)}
+									<a
+										href={`/park/${item.uuid}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-green-600 hover:text-green-900"
+									>
+										View
+									</a>
+								</td>
+							</tr>
+						);
+					})}
 				</tbody>
 			</table>
 		</div>
