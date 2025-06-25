@@ -1,5 +1,6 @@
 export { useAuth } from './useAuth';
-export { useParkingLots } from './useParkingLots';
 export { useParkingAccess } from './useParkingAccess';
-export { useAuditLogs } from './useAuditLogs';
-export { useParkingInfo } from './useParkingInfo'; 
+export { useParkingAccessHistory } from './useParkingAccessHistory';
+export { useParkingInfo } from './useParkingInfo';
+export { useParkingLots } from './useParkingLots';
+export { useAuditLogs } from './useAuditLogs'; 

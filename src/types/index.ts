@@ -17,6 +17,28 @@ export interface ParkingAccess {
 	computed_status?: 'active' | 'revoked' | 'expired' | 'pending';
 }
 
+export interface ParkingAccessHistory {
+	id: string;
+	original_id: string;
+	uuid: string;
+	guest_name: string | null;
+	valid_from: string;
+	valid_to: string;
+	status: string;
+	parking_lot_id: number;
+	created_at: string;
+	deleted_at: string;
+	deleted_by: string | null;
+	reason: string;
+	parking_lots: {
+		name: string;
+		apartment: string;
+		gates: {
+			name: string;
+		};
+	};
+}
+
 export interface AuditLog {
 	id: string;
 	action: string;

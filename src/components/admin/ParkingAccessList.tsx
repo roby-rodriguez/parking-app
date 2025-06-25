@@ -6,6 +6,7 @@ type ParkingAccessListProps = {
 	parkingAccess: ParkingAccess[];
 	onEdit: (item: ParkingAccess) => void;
 	onRevoke: (id: string) => void;
+	onDelete: (id: string) => void;
 	formatDate: (dateString: string) => string;
 };
 
@@ -13,6 +14,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 	parkingAccess,
 	onEdit,
 	onRevoke,
+	onDelete,
 	formatDate,
 }) => (
 	<div>
@@ -72,15 +74,29 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 											>
 												Revoke
 											</button>
+											<button
+												onClick={() => onDelete(item.id)}
+												className="text-gray-600 hover:text-gray-900"
+											>
+												Delete
+											</button>
 										</>
 									)}
 									{effectiveStatus === 'pending' && (
-										<button
-											onClick={() => onEdit(item)}
-											className="text-blue-600 hover:text-blue-900"
-										>
-											Edit
-										</button>
+										<>
+											<button
+												onClick={() => onEdit(item)}
+												className="text-blue-600 hover:text-blue-900"
+											>
+												Edit
+											</button>
+											<button
+												onClick={() => onDelete(item.id)}
+												className="text-gray-600 hover:text-gray-900"
+											>
+												Delete
+											</button>
+										</>
 									)}
 									<a
 										href={`/park/${item.uuid}`}

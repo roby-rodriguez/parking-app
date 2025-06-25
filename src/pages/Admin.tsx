@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
 	AdminHeader,
 	AdminLoading,
@@ -7,8 +7,9 @@ import {
 	AuditLogsTable,
 	ParkingAccessForm,
 	ParkingAccessList,
+	ParkingAccessHistoryTable,
 } from '@/components/admin';
-import { useAuditLogs, useAuth, useParkingAccess, useParkingLots } from '@/hooks';
+import { useAuditLogs, useAuth, useParkingAccess, useParkingAccessHistory, useParkingLots } from '@/hooks';
 import { LoginData, ParkingAccess, ParkingAccessFormData } from '@/types';
 
 export default function Admin() {
@@ -19,10 +20,11 @@ export default function Admin() {
 		loading: accessLoading,
 		createParkingAccess,
 		revokeParkingAccess,
+		deleteParkingAccess,
 	} = useParkingAccess();
 	const { auditLogs, loading: logsLoading } = useAuditLogs();
-	const [activeTab, setActiveTab] = useState<'access' | 'logs'>('access');
-	const [showLogin, setShowLogin] = useState(false);
+	const { parkingAccessHistory, loading: historyLoading } = useParkingAccessHistory();
+	const [activeTab, setActiveTab] = useState<'access' | 'logs' | 'history'>('access');
 
 	// Login state
 	const [loginData, setLoginData] = useState<LoginData>({ email: '', password: '' });
@@ -83,6 +85,10 @@ export default function Admin() {
 		await revokeParkingAccess(id);
 	};
 
+	const handleDelete = async (id: string) => {
+		await deleteParkingAccess(id);
+	};
+
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString('en-US', {
 			year: 'numeric',
@@ -116,7 +122,7 @@ export default function Admin() {
 		);
 	}
 
-	const isLoading = lotsLoading || accessLoading || logsLoading;
+	const isLoading = lotsLoading || accessLoading || logsLoading || historyLoading;
 
 	return (
 		<div className="h-full bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -143,9 +149,15 @@ export default function Admin() {
 											parkingAccess={parkingAccess}
 											onEdit={handleEdit}
 											onRevoke={handleRevoke}
+											onDelete={handleDelete}
 											formatDate={formatDate}
 										/>
 									</div>
+								) : activeTab === 'history' ? (
+									<ParkingAccessHistoryTable
+										parkingAccessHistory={parkingAccessHistory}
+										formatDate={formatDate}
+									/>
 								) : (
 									<AuditLogsTable
 										auditLogs={auditLogs}

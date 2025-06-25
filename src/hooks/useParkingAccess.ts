@@ -10,6 +10,7 @@ interface UseParkingAccessReturn {
 	createParkingAccess: (formData: ParkingAccessFormData) => Promise<{ error: string | null }>;
 	updateParkingAccess: (id: string, formData: ParkingAccessFormData) => Promise<{ error: string | null }>;
 	revokeParkingAccess: (id: string) => Promise<{ error: string | null }>;
+	deleteParkingAccess: (id: string) => Promise<{ error: string | null }>;
 	refetch: () => Promise<void>;
 }
 
@@ -103,6 +104,24 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		}
 	};
 
+	const deleteParkingAccess = async (id: string): Promise<{ error: string | null }> => {
+		try {
+			const { error: deleteError } = await supabase.rpc('delete_parking_access_to_history', {
+				p_access_id: id,
+				p_reason: 'deleted_by_admin'
+			});
+
+			if (deleteError) {
+				return { error: 'Failed to delete parking access' };
+			}
+
+			await fetchParkingAccess();
+			return { error: null };
+		} catch (err) {
+			return { error: 'Failed to delete parking access' };
+		}
+	};
+
 	useEffect(() => {
 		fetchParkingAccess();
 	}, []);
@@ -114,6 +133,7 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		createParkingAccess,
 		updateParkingAccess,
 		revokeParkingAccess,
+		deleteParkingAccess,
 		refetch: fetchParkingAccess,
 	};
 }; 
