@@ -6,10 +6,16 @@ import {
 	AdminTabs,
 	AuditLogsTable,
 	ParkingAccessForm,
-	ParkingAccessList,
 	ParkingAccessHistoryTable,
+	ParkingAccessList,
 } from '@/components/admin';
-import { useAuditLogs, useAuth, useParkingAccess, useParkingAccessHistory, useParkingLots } from '@/hooks';
+import {
+	useAuditLogs,
+	useAuth,
+	useParkingAccess,
+	useParkingAccessHistory,
+	useParkingLots,
+} from '@/hooks';
 import { LoginData, ParkingAccess, ParkingAccessFormData } from '@/types';
 
 export default function Admin() {
@@ -125,18 +131,18 @@ export default function Admin() {
 	const isLoading = lotsLoading || accessLoading || logsLoading || historyLoading;
 
 	return (
-		<div className="h-full bg-gray-50 p-4 sm:p-6 lg:p-8">
-			<div className="h-full max-w-7xl mx-auto">
+		<div className="h-full bg-gray-50 p-2 sm:p-4 lg:p-6">
+			<div className="h-full w-full">
 				<div className="h-full bg-white flex flex-col shadow rounded-lg">
 					<AdminHeader onSignOut={logout} />
 					<AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-					<div className="p-8 flex-1">
+					<div className="p-4 lg:p-6 flex-1">
 						{isLoading ? (
 							<AdminLoading />
 						) : (
-							<div className="mt-8">
+							<div className="mt-4 lg:mt-6">
 								{activeTab === 'access' ? (
-									<div className="space-y-8">
+									<div className="space-y-6">
 										<ParkingAccessForm
 											formData={formData}
 											parkingLots={parkingLots}
