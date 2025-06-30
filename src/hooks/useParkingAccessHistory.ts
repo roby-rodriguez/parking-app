@@ -21,7 +21,7 @@ export const useParkingAccessHistory = (): UseParkingAccessHistoryReturn => {
 		try {
 			const { data, error: fetchError } = await supabase
 				.from('parking_access_history')
-				.select('*, parking_lots (name, apartment, gates (name))')
+				.select('*, parking_lots (name, apartment, address, gates (name, description))')
 				.order('deleted_at', { ascending: false });
 
 			if (fetchError) {
@@ -47,4 +47,4 @@ export const useParkingAccessHistory = (): UseParkingAccessHistoryReturn => {
 		error,
 		refetch: fetchParkingAccessHistory,
 	};
-}; 
+};

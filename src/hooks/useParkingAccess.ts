@@ -8,7 +8,10 @@ interface UseParkingAccessReturn {
 	loading: boolean;
 	error: string | null;
 	createParkingAccess: (formData: ParkingAccessFormData) => Promise<{ error: string | null }>;
-	updateParkingAccess: (id: string, formData: ParkingAccessFormData) => Promise<{ error: string | null }>;
+	updateParkingAccess: (
+		id: string,
+		formData: ParkingAccessFormData,
+	) => Promise<{ error: string | null }>;
 	revokeParkingAccess: (id: string) => Promise<{ error: string | null }>;
 	deleteParkingAccess: (id: string) => Promise<{ error: string | null }>;
 	refetch: () => Promise<void>;
@@ -27,14 +30,14 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 			// Use the view with computed status for better accuracy
 			const { data, error: fetchError } = await supabase
 				.from('parking_access_with_computed_status')
-				.select('*, parking_lots (name, apartment, gates (name))')
+				.select('*, parking_lots (name, apartment, address, gates (name, description))')
 				.order('created_at', { ascending: false });
 
 			if (fetchError) {
 				// Fallback to regular table if view doesn't exist
 				const { data: fallbackData, error: fallbackError } = await supabase
 					.from('parking_access')
-					.select('*, parking_lots (name, apartment, gates (name))')
+					.select('*, parking_lots (name, apartment, address, gates (name, description))')
 					.order('created_at', { ascending: false });
 
 				if (fallbackError) {
@@ -43,9 +46,9 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 				}
 
 				// Add computed status to each record
-				const recordsWithComputedStatus = (fallbackData || []).map(record => ({
+				const recordsWithComputedStatus = (fallbackData || []).map((record) => ({
 					...record,
-					computed_status: getEffectiveStatus(record)
+					computed_status: getEffectiveStatus(record),
 				}));
 
 				setParkingAccess(recordsWithComputedStatus);
@@ -59,7 +62,9 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		}
 	};
 
-	const createParkingAccess = async (formData: ParkingAccessFormData): Promise<{ error: string | null }> => {
+	const createParkingAccess = async (
+		formData: ParkingAccessFormData,
+	): Promise<{ error: string | null }> => {
 		try {
 			const { error: createError } = await supabase.from('parking_access').insert([formData]);
 
@@ -74,9 +79,17 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		}
 	};
 
-	const updateParkingAccess = async (id: string, formData: ParkingAccessFormData): Promise<{ error: string | null }> => {
+	const updateParkingAccess = async (
+		id: string,
+		formData: ParkingAccessFormData,
+	): Promise<{
+		error: string | null;
+	}> => {
 		try {
-			const { error: updateError } = await supabase.from('parking_access').update(formData).eq('id', id);
+			const { error: updateError } = await supabase
+				.from('parking_access')
+				.update(formData)
+				.eq('id', id);
 
 			if (updateError) {
 				return { error: 'Failed to update parking access' };
@@ -91,7 +104,10 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 
 	const revokeParkingAccess = async (id: string): Promise<{ error: string | null }> => {
 		try {
-			const { error: revokeError } = await supabase.from('parking_access').update({ status: 'revoked' }).eq('id', id);
+			const { error: revokeError } = await supabase
+				.from('parking_access')
+				.update({ status: 'revoked' })
+				.eq('id', id);
 
 			if (revokeError) {
 				return { error: 'Failed to revoke parking access' };
@@ -108,7 +124,7 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		try {
 			const { error: deleteError } = await supabase.rpc('delete_parking_access_to_history', {
 				p_access_id: id,
-				p_reason: 'deleted_by_admin'
+				p_reason: 'deleted_by_admin',
 			});
 
 			if (deleteError) {
@@ -136,4 +152,4 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		deleteParkingAccess,
 		refetch: fetchParkingAccess,
 	};
-}; 
+};

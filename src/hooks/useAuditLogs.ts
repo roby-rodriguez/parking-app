@@ -21,7 +21,9 @@ export const useAuditLogs = (limit: number = 50): UseAuditLogsReturn => {
 		try {
 			const { data, error: fetchError } = await supabase
 				.from('audit_logs')
-				.select('*, gates (name), parking_access (guest_name)')
+				.select(
+					'*, gates (name, description), parking_access (guest_name, parking_lots (name, apartment, address))',
+				)
 				.order('created_at', { ascending: false })
 				.limit(limit);
 
@@ -48,4 +50,4 @@ export const useAuditLogs = (limit: number = 50): UseAuditLogsReturn => {
 		error,
 		refetch: fetchAuditLogs,
 	};
-}; 
+};

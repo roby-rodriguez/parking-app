@@ -10,8 +10,10 @@ export interface ParkingAccess {
 	parking_lots: {
 		name: string;
 		apartment: string;
+		address: string;
 		gates: {
 			name: string;
+			description: string | null;
 		};
 	};
 	computed_status?: 'active' | 'revoked' | 'expired' | 'pending';
@@ -33,8 +35,10 @@ export interface ParkingAccessHistory {
 	parking_lots: {
 		name: string;
 		apartment: string;
+		address: string;
 		gates: {
 			name: string;
+			description: string | null;
 		};
 	};
 }
@@ -44,8 +48,18 @@ export interface AuditLog {
 	action: string;
 	ip_address: string;
 	created_at: string;
-	gates: { name: string };
-	parking_access: { guest_name: string };
+	gates: {
+		name: string;
+		description: string | null;
+	};
+	parking_access: {
+		guest_name: string;
+		parking_lots?: {
+			name: string;
+			apartment: string;
+			address: string;
+		};
+	};
 }
 
 export interface ParkingLot {
@@ -66,8 +80,10 @@ export interface ParkingInfo {
 	parking_lots: {
 		name: string;
 		apartment: string;
+		address: string;
 		gates: {
 			name: string;
+			description: string | null;
 		};
 	};
 }
@@ -83,4 +99,4 @@ export interface ParkingAccessFormData {
 	parking_lot_id: number;
 	valid_from: string;
 	valid_to: string;
-} 
+}

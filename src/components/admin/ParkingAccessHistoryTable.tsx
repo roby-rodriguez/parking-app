@@ -20,7 +20,16 @@ const ParkingAccessHistoryTable: React.FC<ParkingAccessHistoryTableProps> = ({
 							Guest
 						</th>
 						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+							Parking Lot
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+							Gate
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 							Apartment
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+							Address
 						</th>
 						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 							Stay Period
@@ -40,7 +49,16 @@ const ParkingAccessHistoryTable: React.FC<ParkingAccessHistoryTableProps> = ({
 								{item.guest_name || 'Unnamed'}
 							</td>
 							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+								{item.parking_lots.name}
+							</td>
+							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+								{item.parking_lots.gates.description}
+							</td>
+							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
 								{item.parking_lots.apartment}
+							</td>
+							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+								{item.parking_lots.address}
 							</td>
 							<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
 								{formatDate(item.valid_from)} - {formatDate(item.valid_to)}
@@ -69,11 +87,9 @@ const ParkingAccessHistoryTable: React.FC<ParkingAccessHistoryTableProps> = ({
 			</table>
 		</div>
 		{parkingAccessHistory.length === 0 && (
-			<div className="text-center py-8 text-gray-500">
-				No past guests found.
-			</div>
+			<div className="text-center py-8 text-gray-500">No past guests found.</div>
 		)}
 	</div>
 );
 
-export default ParkingAccessHistoryTable; 
+export default ParkingAccessHistoryTable;

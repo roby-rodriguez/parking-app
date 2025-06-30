@@ -30,6 +30,15 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 							Parking Lot
 						</th>
 						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+							Gate
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+							Apartment
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+							Address
+						</th>
+						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 							Valid Period
 						</th>
 						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -48,7 +57,18 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 								<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
 									{item.guest_name || 'Unnamed'}
 								</td>
-								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`Lot ${item.parking_lots.name} (Gate: ${item.parking_lots.gates.name})`}</td>
+								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									{item.parking_lots.name}
+								</td>
+								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									{item.parking_lots.gates.description}
+								</td>
+								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									{item.parking_lots.apartment}
+								</td>
+								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+									{item.parking_lots.address}
+								</td>
 								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
 									{formatDate(item.valid_from)} - {formatDate(item.valid_to)}
 								</td>
