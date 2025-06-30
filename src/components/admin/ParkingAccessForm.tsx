@@ -32,12 +32,14 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 			/>
 			<select
 				value={formData.parking_lot_id}
-				onChange={(e) => onChange({ ...formData, parking_lot_id: parseInt(e.target.value) })}
-				className="col-span-1 md:col-span-2 px-3 py-2 border border-gray-300 rounded-md"
+				onChange={(e) =>
+					onChange({ ...formData, parking_lot_id: parseInt(e.target.value) })
+				}
+				className="px-3 py-2 border border-gray-300 rounded-md"
 			>
 				{parkingLots.map((lot) => (
 					<option key={lot.id} value={lot.id}>
-						{`Lot ${lot.name} (Gate: ${lot.gates.name}) - ${lot.apartment}`}
+						{`Ap ${lot.apartment}`}
 					</option>
 				))}
 			</select>
@@ -73,4 +75,4 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 	</div>
 );
 
-export default ParkingAccessForm; 
+export default ParkingAccessForm;
