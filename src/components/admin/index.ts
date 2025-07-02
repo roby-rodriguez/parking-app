@@ -1,11 +1,11 @@
 export { default as AdminHeader } from './AdminHeader';
 export { default as AdminTabs } from './AdminTabs';
-export { default as ParkingAccessForm } from './ParkingAccessForm';
-export { default as ParkingAccessList } from './ParkingAccessList';
+export { default as ParkingAccessForm } from './parking-access/ParkingAccessForm';
+export { default as ParkingAccessList } from './parking-access/ParkingAccessList';
 export { default as AuditLogsTable } from './AuditLogsTable';
 export { default as AdminLoading } from './AdminLoading';
 export { default as AdminLogin } from './AdminLogin';
-export { default as ParkingAccessHistoryTable } from './ParkingAccessHistoryTable';
-export { default as ParkingAccessActions } from './ParkingAccessActions';
-export { default as ParkingAccessCard } from './ParkingAccessCard';
-export { default as ParkingAccessTable } from './ParkingAccessTable';
+export { default as ParkingAccessHistoryTable } from './parking-access/ParkingAccessHistoryTable';
+export { default as ParkingAccessActions } from './parking-access/ParkingAccessActions';
+export { default as ParkingAccessCard } from './parking-access/ParkingAccessCard';
+export { default as ParkingAccessTable } from './parking-access/ParkingAccessTable';

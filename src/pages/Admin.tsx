@@ -114,7 +114,11 @@ export default function Admin() {
 	};
 
 	if (authLoading) {
-		return <AdminLoading />;
+		return (
+			<div className="flex flex-col min-h-screen h-full">
+				<AdminLoading />
+			</div>
+		);
 	}
 
 	if (!session) {

@@ -62,7 +62,10 @@ const ParkingAccessTable: React.FC<ParkingAccessTableProps> = ({
 								{item.parking_lots.name}
 							</td>
 							<td className="px-4 py-4 text-sm text-gray-500">
-								{item.parking_lots.gates.description}
+								{item.parking_lots.gates.name}{' '}
+								{item.parking_lots.gates.description
+									? `(${item.parking_lots.gates.description})`
+									: ''}
 							</td>
 							<td className="px-4 py-4 text-sm text-gray-500">
 								{item.parking_lots.apartment}

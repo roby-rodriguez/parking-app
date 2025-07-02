@@ -30,15 +30,26 @@ const ParkingInfoCard: React.FC<ParkingInfoCardProps> = ({ parkingInfo, children
 				<div className="flex justify-between items-center">
 					<span className="text-gray-600">Gate:</span>
 					<span className="font-semibold text-blue-900">
-						{parkingInfo.parking_lots.gates.name}
+						{parkingInfo.parking_lots.gates.name}{' '}
+						{parkingInfo.parking_lots.gates.description
+							? `(${parkingInfo.parking_lots.gates.description})`
+							: ''}
+					</span>
+				</div>
+			</div>
+			<div className="bg-rose-50 p-4 rounded-lg border border-rose-100">
+				<div className="flex justify-between items-center">
+					<span className="text-gray-600">Parking Lot:</span>
+					<span className="font-semibold text-rose-900">
+						{parkingInfo.parking_lots.name}
 					</span>
 				</div>
 			</div>
 			<div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
 				<div className="flex justify-between items-center">
-					<span className="text-gray-600">Parking Lot:</span>
+					<span className="text-gray-600">Apartment:</span>
 					<span className="font-semibold text-indigo-900">
-						{parkingInfo.parking_lots.name} ({parkingInfo.parking_lots.apartment})
+						{parkingInfo.parking_lots.apartment} ({parkingInfo.parking_lots.address})
 					</span>
 				</div>
 			</div>

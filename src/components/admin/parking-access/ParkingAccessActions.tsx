@@ -34,19 +34,19 @@ const ParkingAccessActions: React.FC<ParkingAccessActionsProps> = ({
 				<>
 					<button
 						onClick={() => onEdit(item)}
-						className={`text-blue-600 hover:text-blue-900 ${baseClasses}`}
+						className={`text-blue-600 hover:text-blue-900 cursor-pointer ${baseClasses}`}
 					>
 						Edit
 					</button>
 					<button
 						onClick={() => onRevoke(item.id)}
-						className={`text-gray-600 hover:text-gray-900 ${baseClasses}`}
+						className={`text-gray-600 hover:text-gray-900 cursor-pointer ${baseClasses}`}
 					>
 						Revoke
 					</button>
 					<button
 						onClick={() => onDelete(item.id)}
-						className={`text-red-600 hover:text-red-900 ${baseClasses}`}
+						className={`text-red-600 hover:text-red-900 cursor-pointer ${baseClasses}`}
 					>
 						Delete
 					</button>
@@ -56,13 +56,13 @@ const ParkingAccessActions: React.FC<ParkingAccessActionsProps> = ({
 				<>
 					<button
 						onClick={() => onEdit(item)}
-						className={`text-blue-600 hover:text-blue-900 ${baseClasses}`}
+						className={`text-blue-600 hover:text-blue-900 cursor-pointer ${baseClasses}`}
 					>
 						Edit
 					</button>
 					<button
 						onClick={() => onDelete(item.id)}
-						className={`text-gray-600 hover:text-gray-900 ${baseClasses}`}
+						className={`text-gray-600 hover:text-gray-900 cursor-pointer ${baseClasses}`}
 					>
 						Delete
 					</button>

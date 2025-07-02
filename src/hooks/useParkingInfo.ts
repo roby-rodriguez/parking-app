@@ -40,8 +40,10 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 					parking_lots (
 						name,
 						apartment,
+						address,
 						gates (
-							name
+							name,
+							description
 						)
 					)
 				`,
@@ -87,7 +89,9 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 	}, [uuid]);
 
 	const openGate = useCallback(async () => {
-		if (!parkingInfo || opening) return;
+		if (!parkingInfo || opening) {
+			return;
+		}
 
 		setOpening(true);
 		setLastAction(null);
@@ -97,7 +101,9 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 				body: { uuid: parkingInfo.uuid },
 			});
 
-			if (error) throw error;
+			if (error) {
+				throw error;
+			}
 
 			if (data.error) {
 				setLastAction(`Error: ${data.error}`);
