@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import ParkingAccessCard from './ParkingAccessCard';
 import ParkingAccessTable from './ParkingAccessTable';
 import { ParkingAccess } from '@/types';
@@ -19,23 +19,21 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 	formatDate,
 }) => {
 	return (
-		<div>
+		<Fragment>
 			<h2 className="text-lg font-medium text-gray-900 mb-4">Parking Access List</h2>
 
 			{/* Mobile/Tablet Cards View (< 800px) */}
-			<div className="block lg:hidden">
-				<div className="space-y-4 overflow-y-auto">
-					{parkingAccess.map((item) => (
-						<ParkingAccessCard
-							key={item.id}
-							item={item}
-							onEdit={onEdit}
-							onRevoke={onRevoke}
-							onDelete={onDelete}
-							formatDate={formatDate}
-						/>
-					))}
-				</div>
+			<div className="space-y-4 overflow-y-auto lg:hidden">
+				{parkingAccess.map((item) => (
+					<ParkingAccessCard
+						key={item.id}
+						item={item}
+						onEdit={onEdit}
+						onRevoke={onRevoke}
+						onDelete={onDelete}
+						formatDate={formatDate}
+					/>
+				))}
 			</div>
 
 			{/* Desktop Table View (≥ 800px) */}
@@ -48,7 +46,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 					formatDate={formatDate}
 				/>
 			</div>
-		</div>
+		</Fragment>
 	);
 };
 

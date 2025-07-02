@@ -9,6 +9,7 @@ type ParkingAccessTableProps = {
 	onRevoke: (id: string) => void;
 	onDelete: (id: string) => void;
 	formatDate: (dateString: string) => string;
+	className?: string;
 };
 
 const ParkingAccessTable: React.FC<ParkingAccessTableProps> = ({
@@ -17,9 +18,10 @@ const ParkingAccessTable: React.FC<ParkingAccessTableProps> = ({
 	onRevoke,
 	onDelete,
 	formatDate,
+	className,
 }) => {
 	return (
-		<table className="w-full divide-y divide-gray-200 text-left">
+		<table className={`w-full divide-y divide-gray-200 text-left ${className || ''}`}>
 			<thead className="bg-gray-50">
 				<tr>
 					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">

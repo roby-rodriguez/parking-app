@@ -131,48 +131,46 @@ export default function Admin() {
 	const isLoading = lotsLoading || accessLoading || logsLoading || historyLoading;
 
 	return (
-		<div className="min-h-screen bg-gray-50 p-2 sm:p-4 lg:p-6">
-			<div className="min-h-screen w-full">
-				<div className="min-h-screen bg-white flex flex-col shadow rounded-lg">
-					<AdminHeader onSignOut={logout} />
-					<AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-					<div className="p-4 lg:p-6 flex-1">
-						{isLoading ? (
-							<AdminLoading />
-						) : (
-							<div className="mt-4 lg:mt-6">
-								{activeTab === 'access' ? (
-									<div className="space-y-6">
-										<ParkingAccessForm
-											formData={formData}
-											parkingLots={parkingLots}
-											onChange={setFormData}
-											onSubmit={handleSubmit}
-											onCancel={handleCancel}
-											editingId={editingId}
-										/>
-										<ParkingAccessList
-											parkingAccess={parkingAccess}
-											onEdit={handleEdit}
-											onRevoke={handleRevoke}
-											onDelete={handleDelete}
-											formatDate={formatDate}
-										/>
-									</div>
-								) : activeTab === 'history' ? (
-									<ParkingAccessHistoryTable
-										parkingAccessHistory={parkingAccessHistory}
+		<div className="flex flex-col min-h-screen h-full bg-gray-50 p-2 sm:p-4 lg:p-6">
+			<div className="flex flex-col flex-1 bg-white shadow rounded-lg">
+				<AdminHeader onSignOut={logout} />
+				<AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+				<div className="flex flex-col flex-1 p-4 lg:p-6">
+					{isLoading ? (
+						<AdminLoading />
+					) : (
+						<div className="mt-4 lg:mt-6">
+							{activeTab === 'access' ? (
+								<div className="space-y-6">
+									<ParkingAccessForm
+										formData={formData}
+										parkingLots={parkingLots}
+										onChange={setFormData}
+										onSubmit={handleSubmit}
+										onCancel={handleCancel}
+										editingId={editingId}
+									/>
+									<ParkingAccessList
+										parkingAccess={parkingAccess}
+										onEdit={handleEdit}
+										onRevoke={handleRevoke}
+										onDelete={handleDelete}
 										formatDate={formatDate}
 									/>
-								) : (
-									<AuditLogsTable
-										auditLogs={auditLogs}
-										formatDateTime={formatDateTime}
-									/>
-								)}
-							</div>
-						)}
-					</div>
+								</div>
+							) : activeTab === 'history' ? (
+								<ParkingAccessHistoryTable
+									parkingAccessHistory={parkingAccessHistory}
+									formatDate={formatDate}
+								/>
+							) : (
+								<AuditLogsTable
+									auditLogs={auditLogs}
+									formatDateTime={formatDateTime}
+								/>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
