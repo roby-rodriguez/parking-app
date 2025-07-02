@@ -18,13 +18,13 @@
 }
 
 body {
-  height: 100vh;
+  min-height: 100vh;
   background-color: #ffffff; /* Light mode default */
   color: #213547; /* Light mode default */
 }
 
 #root {
-  height: 100%;
+  min-height: 100vh;
 }
 
 @media (prefers-color-scheme: dark) {

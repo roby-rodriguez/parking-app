@@ -131,9 +131,9 @@ export default function Admin() {
 	const isLoading = lotsLoading || accessLoading || logsLoading || historyLoading;
 
 	return (
-		<div className="h-full bg-gray-50 p-2 sm:p-4 lg:p-6">
-			<div className="h-full w-full">
-				<div className="h-full bg-white flex flex-col shadow rounded-lg">
+		<div className="min-h-screen bg-gray-50 p-2 sm:p-4 lg:p-6">
+			<div className="min-h-screen w-full">
+				<div className="min-h-screen bg-white flex flex-col shadow rounded-lg">
 					<AdminHeader onSignOut={logout} />
 					<AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 					<div className="p-4 lg:p-6 flex-1">
