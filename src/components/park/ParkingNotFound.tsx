@@ -22,4 +22,4 @@ const ParkingNotFound: React.FC<ParkingNotFoundProps> = ({ onRetry }) => (
 	</div>
 );
 
-export default ParkingNotFound; 
+export default ParkingNotFound;

@@ -3,7 +3,7 @@ import React from 'react';
 const ParkingLoading: React.FC = () => (
 	<div className="h-full flex items-center justify-center bg-gray-50">
 		<div className="text-center">
-			<div 
+			<div
 				className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"
 				role="status"
 				aria-label="Loading parking access"
@@ -13,4 +13,4 @@ const ParkingLoading: React.FC = () => (
 	</div>
 );
 
-export default ParkingLoading; 
+export default ParkingLoading;

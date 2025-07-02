@@ -9,4 +9,4 @@ const AdminLoading: React.FC = () => (
 	</div>
 );
 
-export default AdminLoading; 
+export default AdminLoading;

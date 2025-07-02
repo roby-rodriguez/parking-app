@@ -55,7 +55,7 @@ export default [
 				'warn',
 				{ allowConstantExport: true },
 			],
-			'indent': ['error', 'tab', { 
+			'indent': ['error', 'tab', {
 				'SwitchCase': 1,
 				'VariableDeclarator': 1,
 				'outerIIFEBody': 1,
@@ -84,8 +84,8 @@ export default [
 					'JSXClosingFragment',
 					'JSXText',
 					'JSXEmptyExpression',
-					'JSXSpreadChild'
-				]
+					'JSXSpreadChild',
+				],
 			}],
 			'no-tabs': 'off',
 			'semi': ['error', 'always'],

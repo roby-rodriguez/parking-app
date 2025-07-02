@@ -55,4 +55,4 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ loginData, loginError, onChange
 	</div>
 );
 
-export default AdminLogin; 
+export default AdminLogin;

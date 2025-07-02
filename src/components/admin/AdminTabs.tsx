@@ -42,4 +42,4 @@ const AdminTabs: React.FC<AdminTabsProps> = ({ activeTab, setActiveTab }) => (
 	</div>
 );
 
-export default AdminTabs; 
+export default AdminTabs;

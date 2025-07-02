@@ -43,4 +43,4 @@ const OpenGateButton: React.FC<OpenGateButtonProps> = ({ onOpen, disabled, loadi
 	</>
 );
 
-export default OpenGateButton; 
+export default OpenGateButton;

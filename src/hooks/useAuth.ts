@@ -58,4 +58,4 @@ export const useAuth = (): UseAuthReturn => {
 		login,
 		logout,
 	};
-}; 
+};

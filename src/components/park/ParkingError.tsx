@@ -25,4 +25,4 @@ const ParkingError: React.FC<ParkingErrorProps> = ({ error, onRetry }) => (
 	</div>
 );
 
-export default ParkingError; 
+export default ParkingError;

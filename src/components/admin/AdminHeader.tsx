@@ -18,4 +18,4 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onSignOut }) => (
 	</div>
 );
 
-export default AdminHeader; 
+export default AdminHeader;

@@ -47,4 +47,4 @@ export const useParkingLots = (): UseParkingLotsReturn => {
 		error,
 		refetch: fetchParkingLots,
 	};
-}; 
+};
