@@ -5,4 +5,7 @@ export { default as ParkingAccessList } from './ParkingAccessList';
 export { default as AuditLogsTable } from './AuditLogsTable';
 export { default as AdminLoading } from './AdminLoading';
 export { default as AdminLogin } from './AdminLogin';
-export { default as ParkingAccessHistoryTable } from './ParkingAccessHistoryTable'; 
+export { default as ParkingAccessHistoryTable } from './ParkingAccessHistoryTable';
+export { default as ParkingAccessActions } from './ParkingAccessActions';
+export { default as ParkingAccessCard } from './ParkingAccessCard';
+export { default as ParkingAccessTable } from './ParkingAccessTable'; 
