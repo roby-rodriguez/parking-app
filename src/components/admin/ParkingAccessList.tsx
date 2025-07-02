@@ -38,6 +38,14 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 						</div>
 					</div>
 					<div className="flex space-x-2">
+						<a
+							href={`/park/${item.uuid}`}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-green-600 hover:text-green-900 text-sm font-medium"
+						>
+							View
+						</a>
 						{effectiveStatus === 'active' && (
 							<>
 								<button
@@ -48,13 +56,13 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 								</button>
 								<button
 									onClick={() => onRevoke(item.id)}
-									className="text-red-600 hover:text-red-900 text-sm font-medium"
+									className="text-gray-600 hover:text-gray-900 text-sm font-medium"
 								>
 									Revoke
 								</button>
 								<button
 									onClick={() => onDelete(item.id)}
-									className="text-gray-600 hover:text-gray-900 text-sm font-medium"
+									className="text-red-600 hover:text-red-900 text-sm font-medium"
 								>
 									Delete
 								</button>
@@ -76,14 +84,6 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 								</button>
 							</>
 						)}
-						<a
-							href={`/park/${item.uuid}`}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-green-600 hover:text-green-900 text-sm font-medium"
-						>
-							View
-						</a>
 					</div>
 				</div>
 
@@ -192,6 +192,14 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 										</span>
 									</td>
 									<td className="px-4 py-4 text-sm font-medium space-x-2">
+										<a
+											href={`/park/${item.uuid}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-green-600 hover:text-green-900"
+										>
+											View
+										</a>
 										{effectiveStatus === 'active' && (
 											<>
 												<button
@@ -202,13 +210,13 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 												</button>
 												<button
 													onClick={() => onRevoke(item.id)}
-													className="text-red-600 hover:text-red-900"
+													className="text-gray-600 hover:text-gray-900"
 												>
 													Revoke
 												</button>
 												<button
 													onClick={() => onDelete(item.id)}
-													className="text-gray-600 hover:text-gray-900"
+													className="text-red-600 hover:text-gray-900"
 												>
 													Delete
 												</button>
@@ -230,14 +238,6 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 												</button>
 											</>
 										)}
-										<a
-											href={`/park/${item.uuid}`}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-green-600 hover:text-green-900"
-										>
-											View
-										</a>
 									</td>
 								</tr>
 							);
