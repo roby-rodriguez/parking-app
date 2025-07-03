@@ -62,7 +62,7 @@ const ParkingAccessActions: React.FC<ParkingAccessActionsProps> = ({
 					</button>
 					<button
 						onClick={() => onDelete(item.id)}
-						className={`text-gray-600 hover:text-gray-900 cursor-pointer ${baseClasses}`}
+						className={`text-red-600 hover:text-red-900 cursor-pointer ${baseClasses}`}
 					>
 						Delete
 					</button>

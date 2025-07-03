@@ -35,7 +35,7 @@ const ParkingAccessCard: React.FC<ParkingAccessCardProps> = ({
 			case 'revoked':
 				return 'border-gray-100 bg-gray-500';
 			case 'pending':
-				return 'border-yellow-100 bg-yellow-500';
+				return 'border-blue-100 bg-blue-500';
 			default:
 				return 'border-gray-100 bg-gray-500';
 		}
@@ -52,7 +52,9 @@ const ParkingAccessCard: React.FC<ParkingAccessCardProps> = ({
 			>
 				<div className="flex items-center space-x-3">
 					{/* Status Circle with Highlighted Border */}
-					<div className={`w-3 h-3 rounded-full border-2 ${getStatusBorderClasses(effectiveStatus)}`}></div>
+					<div
+						className={`w-3 h-3 rounded-full border-2 ${getStatusBorderClasses(effectiveStatus)}`}
+					></div>
 
 					{/* Apartment and Valid Period */}
 					<div className="flex items-center space-x-2">
@@ -108,13 +110,20 @@ const ParkingAccessCard: React.FC<ParkingAccessCardProps> = ({
 					{/* Gate */}
 					<div className="flex justify-between items-center py-2 border-b border-gray-100">
 						<span className="text-gray-600 font-medium">Gate:</span>
-						<span className="text-gray-900">{item.parking_lots.gates.name} {item.parking_lots.gates.description ? `(${item.parking_lots.gates.description})` : ''}</span>
+						<span className="text-gray-900">
+							{item.parking_lots.gates.name}{' '}
+							{item.parking_lots.gates.description
+								? `(${item.parking_lots.gates.description})`
+								: ''}
+						</span>
 					</div>
 
 					{/* Status */}
 					<div className="flex justify-between items-center py-2 border-b border-gray-100">
 						<span className="text-gray-600 font-medium">Status:</span>
-						<span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColorClasses(effectiveStatus)}`}>
+						<span
+							className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColorClasses(effectiveStatus)}`}
+						>
 							{getStatusLabel(effectiveStatus)}
 						</span>
 					</div>
