@@ -104,15 +104,21 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 			});
 
 			if (error) {
-				const { context } = error as FunctionsError;
-				if (context) {
-					const { error: message } = await context.json();
-					throw new Error(message);
-				}
-				throw error;
-			}
+				let errorMessage = defaultErrorMessage;
 
-			if (data.error) {
+				if (error?.context?.json) {
+					try {
+						const { context } = error as FunctionsError;
+						const result = await context.json();
+						if (result.error) {
+							errorMessage = result.error;
+						}
+					} catch {
+						/* empty */
+					}
+				}
+				setLastAction(`Error: ${errorMessage}`);
+			} else if (data.error) {
 				setLastAction(`Error: ${data.error || defaultErrorMessage}`);
 			} else {
 				setLastAction(data.message);
