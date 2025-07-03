@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	AdminHeader,
 	AdminLoading,
@@ -112,6 +112,15 @@ export default function Admin() {
 			minute: '2-digit',
 		});
 	};
+
+	useEffect(() => {
+		if (parkingLots.length > 0) {
+			setFormData((prev) => ({
+				...prev,
+				parking_lot_id: parkingLots[0].id,
+			}));
+		}
+	}, [parkingLots]);
 
 	if (authLoading) {
 		return (
