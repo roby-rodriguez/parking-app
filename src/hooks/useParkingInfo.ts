@@ -1,3 +1,4 @@
+import { FunctionsError } from '@supabase/functions-js/src/types';
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { ParkingInfo } from '@/types';
@@ -103,6 +104,11 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 			});
 
 			if (error) {
+				const { context } = error as FunctionsError;
+				if (context) {
+					const { error: message } = await context.json();
+					throw new Error(message);
+				}
 				throw error;
 			}
 

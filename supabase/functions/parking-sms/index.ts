@@ -79,7 +79,7 @@ serve(async (req) => {
 				if (currentAttempts >= 5) {
 					// console.log(`Rate limit exceeded for ${uuid}: ${currentAttempts} attempts`);
 					return new Response(JSON.stringify({
-						error: 'Rate limit exceeded. Try again later.',
+						error: 'Rate limit exceeded, please try again later.',
 					}), {
 						status: 429,
 						headers: {
@@ -149,7 +149,7 @@ serve(async (req) => {
 
 		// Only allow active status
 		if (currentStatus !== 'active') {
-			const errorMessage = currentStatus === 'revoked' 
+			const errorMessage = currentStatus === 'revoked'
 				? 'Parking access has been revoked'
 				: currentStatus === 'expired'
 					? 'Parking access has expired'
@@ -214,7 +214,7 @@ serve(async (req) => {
 		return new Response(
 			JSON.stringify({
 				status: 'success',
-				message: `Opening gate: ${parkingInfo.parking_lots.gates.name}`,
+				message: `Opening gate ${parkingInfo.parking_lots.gates.name}, please wait...`,
 			}),
 			{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 		);
