@@ -200,16 +200,22 @@ serve(async (req) => {
 		}
 
 		// Log the action to audit_logs
-		const clientIp = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+		const xForwardedFor = req.headers.get('x-forwarded-for');
+		const clientIp = xForwardedFor
+			? xForwardedFor.split(',')[0].trim()
+			: (req.headers.get('x-real-ip') || 'unknown');
 		const userAgent = req.headers.get('user-agent') || 'unknown';
 
-		await supabase.from('audit_logs').insert({
+		const { error: auditError } = await supabase.from('audit_logs').insert({
 			parking_access_id: parkingInfo.id,
 			action: 'gate_opened',
 			gate_id: parkingInfo.parking_lots.gates.id,
 			ip_address: clientIp,
 			user_agent: userAgent,
 		});
+		if (auditError) {
+			console.error('Failed to insert audit log:', auditError);
+		}
 
 		return new Response(
 			JSON.stringify({
