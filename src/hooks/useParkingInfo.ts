@@ -89,6 +89,7 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 	}, [uuid]);
 
 	const openGate = useCallback(async () => {
+		const defaultErrorMessage = 'Failed to open gate, please try again later.';
 		if (!parkingInfo || opening) {
 			return;
 		}
@@ -106,12 +107,12 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 			}
 
 			if (data.error) {
-				setLastAction(`Error: ${data.error}`);
+				setLastAction(`Error: ${data.error || defaultErrorMessage}`);
 			} else {
 				setLastAction(data.message);
 			}
 		} catch (err: any) {
-			setLastAction(err.message || 'Failed to open gate. Please try again.');
+			setLastAction(`Error: ${err.message || defaultErrorMessage}`);
 		} finally {
 			setOpening(false);
 		}

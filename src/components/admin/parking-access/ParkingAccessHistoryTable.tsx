@@ -45,7 +45,7 @@ const ParkingAccessHistoryTable: React.FC<ParkingAccessHistoryTableProps> = ({
 				{parkingAccessHistory.map((item) => (
 					<tr key={item.id}>
 						<td className="px-4 py-4 text-sm font-medium text-gray-900">
-							{item.guest_name || 'Unnamed'}
+							{item.guest_name || '-'}
 						</td>
 						<td className="px-4 py-4 text-sm text-gray-500">
 							{item.parking_lots.name}
