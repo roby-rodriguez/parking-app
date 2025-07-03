@@ -33,31 +33,19 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 		setError(null);
 
 		try {
-			const { data, error: fetchError } = await supabase
-				.from('parking_access')
-				.select(
-					`
-					*,
-					parking_lots (
-						name,
-						apartment,
-						address,
-						gates (
-							name,
-							description
-						)
-					)
-				`,
-				)
-				.eq('uuid', uuid)
-				.single();
+			const { data: results, error: fetchError } = await supabase.rpc('get_parking_info_by_uuid', { p_uuid: uuid });
 
 			if (fetchError) {
 				setError('Parking access not found');
 				return;
 			}
 
-			// Calculate current status
+			if (!results || results.length === 0) {
+				setError('Parking access not found');
+				return;
+			}
+
+			const data = results[0];
 			const currentStatus = calculateParkingStatus(
 				data.valid_from,
 				data.valid_to,
@@ -81,7 +69,20 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 			}
 
 			// Status is 'active', so access is valid
-			setParkingInfo(data);
+			setParkingInfo({
+				guest_name: data.guest_name,
+				valid_from: data.valid_from,
+				valid_to: data.valid_to,
+				parking_lots: {
+					name: data.parking_lot_name,
+					apartment: data.parking_lot_apartment,
+					address: data.parking_lot_address,
+					gates: {
+						name: data.gate_name,
+						description: data.gate_description,
+					},
+				},
+			});
 		} catch (err) {
 			setError('Failed to load parking access');
 		} finally {

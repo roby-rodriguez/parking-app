@@ -72,8 +72,8 @@ export interface ParkingLot {
 
 // Component-specific types
 export interface ParkingInfo {
-	id: string;
-	uuid: string;
+	id?: string;
+	uuid?: string;
 	guest_name: string | null;
 	valid_from: string;
 	valid_to: string;
