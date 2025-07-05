@@ -1,12 +1,12 @@
 import React from 'react';
 import { AuditLog } from '@/types';
 
-type AuditLogsTableProps = {
+type AuditLogsProps = {
 	auditLogs: AuditLog[];
 	formatDateTime: (dateString: string) => string;
 };
 
-const AuditLogsTable: React.FC<AuditLogsTableProps> = ({ auditLogs, formatDateTime }) => (
+const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => (
 	<div>
 		<h2 className="text-lg font-medium text-gray-900 mb-4">Audit Logs</h2>
 		<table className="w-full divide-y divide-gray-200">
@@ -66,4 +66,4 @@ const AuditLogsTable: React.FC<AuditLogsTableProps> = ({ auditLogs, formatDateTi
 	</div>
 );
 
-export default AuditLogsTable;
+export default AuditLogs;

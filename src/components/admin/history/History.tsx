@@ -1,12 +1,12 @@
 import React from 'react';
 import { ParkingAccessHistory } from '@/types';
 
-type ParkingAccessHistoryTableProps = {
+type ParkingAccessHistoryProps = {
 	parkingAccessHistory: ParkingAccessHistory[];
 	formatDate: (dateString: string) => string;
 };
 
-const ParkingAccessHistoryTable: React.FC<ParkingAccessHistoryTableProps> = ({
+const History: React.FC<ParkingAccessHistoryProps> = ({
 	parkingAccessHistory,
 	formatDate,
 }) => (
@@ -90,4 +90,4 @@ const ParkingAccessHistoryTable: React.FC<ParkingAccessHistoryTableProps> = ({
 	</div>
 );
 
-export default ParkingAccessHistoryTable;
+export default History;

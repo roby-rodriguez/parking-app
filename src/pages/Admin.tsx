@@ -4,9 +4,9 @@ import {
 	AdminLoading,
 	AdminLogin,
 	AdminTabs,
-	AuditLogsTable,
+	AuditLogs,
 	ParkingAccessForm,
-	ParkingAccessHistoryTable,
+	History,
 	ParkingAccessList,
 } from '@/components/admin';
 import {
@@ -172,12 +172,12 @@ export default function Admin() {
 									/>
 								</div>
 							) : activeTab === 'history' ? (
-								<ParkingAccessHistoryTable
+								<History
 									parkingAccessHistory={parkingAccessHistory}
 									formatDate={formatDate}
 								/>
 							) : (
-								<AuditLogsTable
+								<AuditLogs
 									auditLogs={auditLogs}
 									formatDateTime={formatDateTime}
 								/>
