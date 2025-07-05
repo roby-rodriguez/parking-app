@@ -1,4 +1,5 @@
 import React from 'react';
+import { ColumnDefinition, DataView } from '../shared';
 import { AuditLog } from '@/types';
 
 type AuditLogsProps = {
@@ -6,64 +7,73 @@ type AuditLogsProps = {
 	formatDateTime: (dateString: string) => string;
 };
 
-const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => (
-	<div>
-		<h2 className="text-lg font-medium text-gray-900 mb-4">Audit Logs</h2>
-		<table className="w-full divide-y divide-gray-200">
-			<thead className="bg-gray-50">
-				<tr>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Time
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Action
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Guest
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
-						Gate
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Parking Lot
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Apartment
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
-						Address
-					</th>
-				</tr>
-			</thead>
-			<tbody className="bg-white divide-y divide-gray-200">
-				{auditLogs.map((log) => (
-					<tr key={log.id}>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{formatDateTime(log.created_at)}
-						</td>
-						<td className="px-4 py-4 text-sm font-medium text-gray-900">
-							{log.action}
-						</td>
-						<td className="px-4 py-4 text-sm font-medium text-gray-900">
-							{log.parking_access?.guest_name || 'N/A'}
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{log.gates?.description || 'N/A'}
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{log.parking_access?.parking_lots?.name || 'N/A'}
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{log.parking_access?.parking_lots?.apartment || 'N/A'}
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{log.parking_access?.parking_lots?.address || 'N/A'}
-						</td>
-					</tr>
-				))}
-			</tbody>
-		</table>
-	</div>
-);
+const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => {
+	const columns: ColumnDefinition<AuditLog>[] = [
+		{
+			key: 'time',
+			label: 'Time',
+			width: 'w-32',
+			render: (item) => formatDateTime(item.created_at),
+		},
+		{
+			key: 'action',
+			label: 'Action',
+			width: 'w-32',
+			render: (item) => item.action,
+		},
+		{
+			key: 'guest',
+			label: 'Guest',
+			width: 'w-32',
+			render: (item) => item.parking_access?.guest_name || 'N/A',
+		},
+		{
+			key: 'gate',
+			label: 'Gate',
+			width: 'w-40',
+			render: (item) => item.gates?.description || 'N/A',
+		},
+		{
+			key: 'parking_lot',
+			label: 'Parking Lot',
+			width: 'w-32',
+			render: (item) => item.parking_access?.parking_lots?.name || 'N/A',
+		},
+		{
+			key: 'apartment',
+			label: 'Apartment',
+			width: 'w-32',
+			render: (item) => item.parking_access?.parking_lots?.apartment || 'N/A',
+		},
+		{
+			key: 'address',
+			label: 'Address',
+			width: 'w-48',
+			render: (item) => item.parking_access?.parking_lots?.address || 'N/A',
+		},
+	];
+
+	// Custom card header renderer for AuditLogs
+	const cardHeaderRenderer = (item: AuditLog) => {
+		return (
+			<div className="flex items-center space-x-2">
+				<span className="text-sm font-medium text-gray-900">
+					Ap. {item.parking_access?.parking_lots?.apartment || 'N/A'}:
+				</span>
+				<span className="text-sm text-gray-600">{formatDateTime(item.created_at)}</span>
+			</div>
+		);
+	};
+
+	return (
+		<DataView
+			data={auditLogs}
+			columns={columns}
+			emptyMessage="No audit logs found."
+			cardHeaderRenderer={cardHeaderRenderer}
+			cardContentKeys={['guest', 'parking_lot', 'gate']}
+		/>
+	);
+};
 
 export default AuditLogs;

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ColumnDefinition, DataView } from '../shared';
 import { ParkingAccessHistory } from '@/types';
 
 type ParkingAccessHistoryProps = {
@@ -6,88 +7,95 @@ type ParkingAccessHistoryProps = {
 	formatDate: (dateString: string) => string;
 };
 
-const History: React.FC<ParkingAccessHistoryProps> = ({
-	parkingAccessHistory,
-	formatDate,
-}) => (
-	<div>
-		<h2 className="text-lg font-medium text-gray-900 mb-4">Past Guests History</h2>
-		<table className="w-full divide-y divide-gray-200 text-left">
-			<thead className="bg-gray-50">
-				<tr>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Guest
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Parking Lot
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
-						Gate
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Apartment
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
-						Address
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
-						Stay Period
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Status at Deletion
-					</th>
-					<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-						Deleted At
-					</th>
-				</tr>
-			</thead>
-			<tbody className="bg-white divide-y divide-gray-200">
-				{parkingAccessHistory.map((item) => (
-					<tr key={item.id}>
-						<td className="px-4 py-4 text-sm font-medium text-gray-900">
-							{item.guest_name || '-'}
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{item.parking_lots.name}
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{item.parking_lots.gates.description}
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{item.parking_lots.apartment}
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{item.parking_lots.address}
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{formatDate(item.valid_from)} - {formatDate(item.valid_to)}
-						</td>
-						<td className="px-4 py-4">
-							<span
-								className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-									item.status === 'active'
-										? 'bg-green-100 text-green-800'
-										: item.status === 'revoked'
-											? 'bg-red-100 text-red-800'
-											: item.status === 'expired'
-												? 'bg-orange-100 text-orange-800'
-												: 'bg-gray-100 text-gray-800'
-								}`}
-							>
-								{item.status}
-							</span>
-						</td>
-						<td className="px-4 py-4 text-sm text-gray-500">
-							{formatDate(item.deleted_at)}
-						</td>
-					</tr>
-				))}
-			</tbody>
-		</table>
-		{parkingAccessHistory.length === 0 && (
-			<div className="text-center py-8 text-gray-500">No past guests found.</div>
-		)}
-	</div>
-);
+const History: React.FC<ParkingAccessHistoryProps> = ({ parkingAccessHistory, formatDate }) => {
+	const columns: ColumnDefinition<ParkingAccessHistory>[] = [
+		{
+			key: 'guest',
+			label: 'Guest',
+			width: 'w-32',
+			render: (item) => item.guest_name || '-',
+		},
+		{
+			key: 'parking_lot',
+			label: 'Parking Lot',
+			width: 'w-32',
+			render: (item) => item.parking_lots.name,
+		},
+		{
+			key: 'gate',
+			label: 'Gate',
+			width: 'w-40',
+			render: (item) => item.parking_lots.gates.description,
+		},
+		{
+			key: 'apartment',
+			label: 'Apartment',
+			width: 'w-32',
+			render: (item) => item.parking_lots.apartment,
+		},
+		{
+			key: 'address',
+			label: 'Address',
+			width: 'w-48',
+			render: (item) => item.parking_lots.address,
+		},
+		{
+			key: 'stay_period',
+			label: 'Stay Period',
+			width: 'w-40',
+			render: (item) => `${formatDate(item.valid_from)} - ${formatDate(item.valid_to)}`,
+		},
+		{
+			key: 'status',
+			label: 'Status at Deletion',
+			width: 'w-32',
+			render: (item) => (
+				<span
+					className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+						item.status === 'active'
+							? 'bg-green-100 text-green-800'
+							: item.status === 'revoked'
+								? 'bg-red-100 text-red-800'
+								: item.status === 'expired'
+									? 'bg-orange-100 text-orange-800'
+									: 'bg-gray-100 text-gray-800'
+					}`}
+				>
+					{item.status}
+				</span>
+			),
+		},
+		{
+			key: 'deleted_at',
+			label: 'Deleted At',
+			width: 'w-32',
+			render: (item) => formatDate(item.deleted_at),
+		},
+	];
+
+	// Custom card header renderer for History
+	const cardHeaderRenderer = (item: ParkingAccessHistory) => {
+		return (
+			<div className="flex items-center space-x-2">
+				<span className="text-sm font-medium text-gray-900">
+					Ap. {item.parking_lots.apartment}:
+				</span>
+				<span className="text-sm text-gray-600">
+					{formatDate(item.valid_from)} - {formatDate(item.valid_to)}
+				</span>
+			</div>
+		);
+	};
+
+	return (
+		<DataView
+			data={parkingAccessHistory}
+			columns={columns}
+			emptyMessage="No past guests found."
+			cardHeaderRenderer={cardHeaderRenderer}
+			cardContentKeys={['guest', 'parking_lot', 'gate']}
+		/>
+	);
+};
 
 export default History;

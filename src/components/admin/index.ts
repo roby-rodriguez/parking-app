@@ -6,6 +6,6 @@ export { default as AuditLogs } from './audit-logs/AuditLogs';
 export { default as AdminLoading } from './AdminLoading';
 export { default as AdminLogin } from './AdminLogin';
 export { default as History } from './history/History';
-export { default as ParkingAccessActions } from './parking-access/ParkingAccessActions';
-export { default as ParkingAccessCard } from './parking-access/ParkingAccessCard';
-export { default as ParkingAccessTable } from './parking-access/ParkingAccessTable';
+
+// Shared components
+export * from './shared';
