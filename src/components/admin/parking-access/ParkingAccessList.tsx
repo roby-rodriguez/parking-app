@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActionDefinition, ColumnDefinition, DataView } from '../shared';
+import { useConfirmContext } from '@/context/ConfirmDialogProvider';
 import { ParkingAccess } from '@/types';
 import { getEffectiveStatus, getStatusColorClasses, getStatusLabel } from '@/utils/statusUtils';
 
@@ -18,6 +19,8 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 	onDelete,
 	formatDate,
 }) => {
+	const confirm = useConfirmContext();
+
 	const columns: ColumnDefinition<ParkingAccess>[] = [
 		{
 			key: 'guest',
@@ -79,6 +82,28 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		},
 	];
 
+	const handleDelete = async (item: ParkingAccess) => {
+		const ok = await confirm({
+			message: `Are you sure you want to permanently delete parking access for Ap. ${item.parking_lots.apartment}${item.guest_name ? ` (${item.guest_name})` : ''} for the period ${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}?`,
+			confirmLabel: 'Delete',
+			cancelLabel: 'Cancel',
+		});
+		if (ok) {
+			await onDelete(item.id);
+		}
+	};
+
+	const handleRevoke = async (item: ParkingAccess) => {
+		const ok = await confirm({
+			message: `Are you sure you want to revoke parking access for Ap. ${item.parking_lots.apartment}${item.guest_name ? ` (${item.guest_name})` : ''} for the period ${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}?`,
+			confirmLabel: 'Revoke',
+			cancelLabel: 'Cancel',
+		});
+		if (ok) {
+			await onRevoke(item.id);
+		}
+	};
+
 	const actions: ActionDefinition<ParkingAccess>[] = [
 		{
 			key: 'view',
@@ -102,7 +127,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 			key: 'revoke',
 			label: 'Revoke',
 			variant: 'neutral',
-			onClick: (item) => onRevoke(item.id),
+			onClick: handleRevoke,
 			hidden: (item) => {
 				const effectiveStatus = getEffectiveStatus(item);
 				return effectiveStatus !== 'active';
@@ -112,7 +137,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 			key: 'delete',
 			label: 'Delete',
 			variant: 'danger',
-			onClick: (item) => onDelete(item.id),
+			onClick: handleDelete,
 			hidden: (item) => {
 				const effectiveStatus = getEffectiveStatus(item);
 				return !['active', 'pending'].includes(effectiveStatus);

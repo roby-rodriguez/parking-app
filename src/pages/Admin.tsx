@@ -5,10 +5,11 @@ import {
 	AdminLogin,
 	AdminTabs,
 	AuditLogs,
-	ParkingAccessForm,
 	History,
+	ParkingAccessForm,
 	ParkingAccessList,
 } from '@/components/admin';
+import { ConfirmDialogProvider } from '@/context/ConfirmDialogProvider';
 import {
 	useAuditLogs,
 	useAuth,
@@ -163,13 +164,15 @@ export default function Admin() {
 										onCancel={handleCancel}
 										editingId={editingId}
 									/>
-									<ParkingAccessList
-										parkingAccess={parkingAccess}
-										onEdit={handleEdit}
-										onRevoke={handleRevoke}
-										onDelete={handleDelete}
-										formatDate={formatDate}
-									/>
+									<ConfirmDialogProvider>
+										<ParkingAccessList
+											parkingAccess={parkingAccess}
+											onEdit={handleEdit}
+											onRevoke={handleRevoke}
+											onDelete={handleDelete}
+											formatDate={formatDate}
+										/>
+									</ConfirmDialogProvider>
 								</div>
 							) : activeTab === 'history' ? (
 								<History
@@ -177,10 +180,7 @@ export default function Admin() {
 									formatDate={formatDate}
 								/>
 							) : (
-								<AuditLogs
-									auditLogs={auditLogs}
-									formatDateTime={formatDateTime}
-								/>
+								<AuditLogs auditLogs={auditLogs} formatDateTime={formatDateTime} />
 							)}
 						</div>
 					)}
