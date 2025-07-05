@@ -70,6 +70,7 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 
 			// Status is 'active', so access is valid
 			setParkingInfo({
+				uuid: uuid,
 				guest_name: data.guest_name,
 				valid_from: data.valid_from,
 				valid_to: data.valid_to,
