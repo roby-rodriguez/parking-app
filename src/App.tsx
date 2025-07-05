@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import Admin from './pages/Admin';
-import Park from './pages/Park';
-import './App.scss';
+import Admin from '@/pages/Admin';
+import Park from '@/pages/Park';
+import '@/App.scss';
 
 function App() {
 	return (

@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@use "tailwindcss";
 
 @tailwind base;
 @tailwind components;
@@ -18,13 +18,11 @@
 }
 
 body {
-  height: 100vh;
   background-color: #ffffff; /* Light mode default */
   color: #213547; /* Light mode default */
 }
 
 #root {
-  height: 100%;
 }
 
 @media (prefers-color-scheme: dark) {

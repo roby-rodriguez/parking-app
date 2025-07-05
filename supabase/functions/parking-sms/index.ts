@@ -3,7 +3,7 @@
 // This enables autocomplete, go to definition, etc.
 
 // Setup type definitions for built-in Supabase Runtime APIs
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -35,16 +35,16 @@ serve(async (req) => {
 
 	// Handle CORS preflight requests
 	if (req.method === 'OPTIONS') {
-		return new Response('ok', {headers: corsHeaders});
+		return new Response('ok', { headers: corsHeaders });
 	}
 
 	try {
-		const {uuid} = await req.json();
+		const { uuid } = await req.json();
 
 		if (!uuid) {
 			return new Response(
-				JSON.stringify({error: 'Missing access token (uuid)'}),
-				{status: 400, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
+				JSON.stringify({ error: 'Missing access token (uuid)' }),
+				{ status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
 
@@ -59,7 +59,7 @@ serve(async (req) => {
 		const upstashToken = Deno.env.get('UPSTASH_REDIS_REST_TOKEN');
 		if (upstashUrl && upstashToken) {
 			try {
-				redis = new UpstashRedis({url: upstashUrl, token: upstashToken});
+				redis = new UpstashRedis({ url: upstashUrl, token: upstashToken });
 			} catch (error) {
 				console.error('Upstash Redis init failed:', error);
 			}
@@ -79,13 +79,13 @@ serve(async (req) => {
 				if (currentAttempts >= 5) {
 					// console.log(`Rate limit exceeded for ${uuid}: ${currentAttempts} attempts`);
 					return new Response(JSON.stringify({
-						error: 'Rate limit exceeded. Try again later.'
+						error: 'Rate limit exceeded, please try again later.',
 					}), {
 						status: 429,
 						headers: {
 							...corsHeaders,
-							'Content-Type': 'application/json'
-						}
+							'Content-Type': 'application/json',
+						},
 					});
 				}
 				// Increment and set with explicit error handling
@@ -104,7 +104,7 @@ serve(async (req) => {
 		}
 
 		// Validate parking access and fetch related gate info
-		const {data: parkingInfo, error: accessError} = await supabase
+		const { data: parkingInfo, error: accessError } = await supabase
 			.from('parking_access')
 			.select(`
 				*,
@@ -119,25 +119,45 @@ serve(async (req) => {
 				)
 			`)
 			.eq('uuid', uuid)
-			.eq('status', 'active')
 			.single();
 
 		if (accessError || !parkingInfo || !parkingInfo.parking_lots || !parkingInfo.parking_lots.gates) {
 			return new Response(
-				JSON.stringify({error: 'Invalid or expired parking access'}),
-				{status: 404, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
+				JSON.stringify({ error: 'Invalid parking access' }),
+				{ status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
 
-		// Check if access is within valid time range
+		// Calculate current status
 		const now = new Date();
 		const validFrom = new Date(parkingInfo.valid_from);
 		const validTo = new Date(parkingInfo.valid_to);
+		let currentStatus = 'active';
 
-		if (now < validFrom || now > validTo) {
+		// Check if manually revoked
+		if (parkingInfo.status === 'revoked') {
+			currentStatus = 'revoked';
+		}
+		// Check if expired
+		else if (now > validTo) {
+			currentStatus = 'expired';
+		}
+		// Check if not yet valid
+		else if (now < validFrom) {
+			currentStatus = 'pending';
+		}
+
+		// Only allow active status
+		if (currentStatus !== 'active') {
+			const errorMessage = currentStatus === 'revoked'
+				? 'Parking access has been revoked'
+				: currentStatus === 'expired'
+					? 'Parking access has expired'
+					: 'Parking access is not yet valid';
+
 			return new Response(
-				JSON.stringify({error: 'Parking access is not valid at this time'}),
-				{status: 403, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
+				JSON.stringify({ error: errorMessage }),
+				{ status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
 
@@ -148,10 +168,10 @@ serve(async (req) => {
 		const gatePhoneNumber = parkingInfo.parking_lots.gates.phone_number;
 
 		if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber || !gatePhoneNumber) {
-			console.error("Twilio or Gate phone number configuration is missing.");
+			console.error('Twilio or Gate phone number configuration is missing.');
 			return new Response(
-				JSON.stringify({error: 'System configuration error.'}),
-				{status: 500, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
+				JSON.stringify({ error: 'System configuration error.' }),
+				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
 
@@ -174,36 +194,42 @@ serve(async (req) => {
 			const errorText = await callResponse.text();
 			console.error('Twilio call failed:', errorText);
 			return new Response(
-				JSON.stringify({error: 'Failed to open gate'}),
-				{status: 500, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
+				JSON.stringify({ error: 'Failed to open gate' }),
+				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
 
 		// Log the action to audit_logs
-		const clientIp = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+		const xForwardedFor = req.headers.get('x-forwarded-for');
+		const clientIp = xForwardedFor
+			? xForwardedFor.split(',')[0].trim()
+			: (req.headers.get('x-real-ip') || 'unknown');
 		const userAgent = req.headers.get('user-agent') || 'unknown';
 
-		await supabase.from('audit_logs').insert({
+		const { error: auditError } = await supabase.from('audit_logs').insert({
 			parking_access_id: parkingInfo.id,
 			action: 'gate_opened',
 			gate_id: parkingInfo.parking_lots.gates.id,
 			ip_address: clientIp,
 			user_agent: userAgent,
 		});
+		if (auditError) {
+			console.error('Failed to insert audit log:', auditError);
+		}
 
 		return new Response(
 			JSON.stringify({
 				status: 'success',
-				message: `Opening gate: ${parkingInfo.parking_lots.gates.name}`,
+				message: `Opening gate ${parkingInfo.parking_lots.gates.name}, please wait...`,
 			}),
-			{status: 200, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
+			{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 		);
 
 	} catch (error) {
 		console.error('Error in parking-sms function:', error);
 		return new Response(
-			JSON.stringify({error: 'Internal server error'}),
-			{status: 500, headers: {...corsHeaders, 'Content-Type': 'application/json'}}
+			JSON.stringify({ error: 'Internal server error' }),
+			{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 		);
 	}
 });
