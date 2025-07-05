@@ -12,7 +12,7 @@ const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => {
 		{
 			key: 'time',
 			label: 'Time',
-			width: 'w-32',
+			width: 'w-40',
 			render: (item) => formatDateTime(item.created_at),
 		},
 		{
@@ -51,6 +51,22 @@ const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => {
 			width: 'w-48',
 			render: (item) => item.parking_access?.parking_lots?.address || 'N/A',
 		},
+		{
+			key: 'ip_address',
+			label: 'IP Address',
+			width: 'w-32',
+			render: (item) => <span title={item.ip_address || ''}>{item.ip_address || 'N/A'}</span>,
+		},
+		{
+			key: 'user_agent',
+			label: 'User Agent',
+			width: 'w-48',
+			render: (item) => (
+				<span className="truncate block max-w-xs" title={item.user_agent || ''}>
+					{item.user_agent || 'N/A'}
+				</span>
+			),
+		},
 	];
 
 	// Custom card header renderer for AuditLogs
@@ -71,7 +87,7 @@ const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => {
 			columns={columns}
 			emptyMessage="No audit logs found."
 			cardHeaderRenderer={cardHeaderRenderer}
-			cardContentKeys={['guest', 'parking_lot', 'gate']}
+			cardContentKeys={['guest', 'parking_lot', 'gate', 'ip_address', 'user_agent']}
 		/>
 	);
 };

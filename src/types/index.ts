@@ -60,6 +60,7 @@ export interface AuditLog {
 			address: string;
 		};
 	};
+	user_agent?: string;
 }
 
 export interface ParkingLot {
