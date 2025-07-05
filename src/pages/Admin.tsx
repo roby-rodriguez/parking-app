@@ -30,7 +30,7 @@ export default function Admin() {
 		deleteParkingAccess,
 	} = useParkingAccess();
 	const { auditLogs, loading: logsLoading } = useAuditLogs();
-	const { parkingAccessHistory, loading: historyLoading } = useParkingAccessHistory();
+	const { parkingAccessHistory, loading: historyLoading, refetch: refetchHistory } = useParkingAccessHistory();
 	const [activeTab, setActiveTab] = useState<'access' | 'logs' | 'history'>('access');
 
 	// Login state
@@ -171,6 +171,7 @@ export default function Admin() {
 											onRevoke={handleRevoke}
 											onDelete={handleDelete}
 											formatDate={formatDate}
+											refetchHistory={refetchHistory}
 										/>
 									</ConfirmDialogProvider>
 								</div>

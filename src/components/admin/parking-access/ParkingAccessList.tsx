@@ -10,6 +10,7 @@ type ParkingAccessListProps = {
 	onRevoke: (id: string) => void;
 	onDelete: (id: string) => void;
 	formatDate: (dateString: string) => string;
+	refetchHistory: () => Promise<void>;
 };
 
 const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
@@ -18,6 +19,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 	onRevoke,
 	onDelete,
 	formatDate,
+	refetchHistory,
 }) => {
 	const confirm = useConfirmContext();
 
@@ -90,6 +92,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		});
 		if (ok) {
 			await onDelete(item.id);
+			await refetchHistory();
 		}
 	};
 
@@ -140,7 +143,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 			onClick: handleDelete,
 			hidden: (item) => {
 				const effectiveStatus = getEffectiveStatus(item);
-				return !['active', 'pending'].includes(effectiveStatus);
+				return effectiveStatus === 'pending';
 			},
 		},
 	];
