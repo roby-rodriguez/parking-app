@@ -10,6 +10,7 @@ import {
 	ParkingAccessList,
 } from '@/components/admin';
 import { ConfirmDialogProvider } from '@/context/ConfirmDialogProvider';
+import { ToastProvider, useToastContext } from '@/context/ToastProvider';
 import {
 	useAuditLogs,
 	useAuth,
@@ -20,6 +21,7 @@ import {
 import { LoginData, ParkingAccess, ParkingAccessFormData } from '@/types';
 
 export default function Admin() {
+	const { show: showToast } = useToastContext();
 	const { session, loading: authLoading, login, logout } = useAuth();
 	const { parkingLots, loading: lotsLoading } = useParkingLots();
 	const {
@@ -73,6 +75,7 @@ export default function Admin() {
 			// Update existing parking access
 			const { error } = await updateParkingAccess(editingId, formDataWithTime);
 			if (!error) {
+				showToast('Parking access updated successfully!', 'success');
 				setEditingId(null);
 				setFormData({
 					guest_name: '',
@@ -80,18 +83,22 @@ export default function Admin() {
 					valid_from: '',
 					valid_to: '',
 				});
+			} else {
+				showToast(error, 'error');
 			}
 		} else {
 			// Create new parking access
 			const { error } = await createParkingAccess(formDataWithTime);
 			if (!error) {
-				// Reset form on success
+				showToast('Parking access created successfully!', 'success');
 				setFormData({
 					guest_name: '',
 					parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
 					valid_from: '',
 					valid_to: '',
 				});
+			} else {
+				showToast(error, 'error');
 			}
 		}
 	};
@@ -117,15 +124,30 @@ export default function Admin() {
 	};
 
 	const handleSuspend = async (id: string) => {
-		await suspendParkingAccess(id);
+		const { error } = await suspendParkingAccess(id);
+		if (!error) {
+			showToast('Parking access suspended.', 'success');
+		} else {
+			showToast(error, 'error');
+		}
 	};
 
 	const handleDelete = async (id: string) => {
-		await deleteParkingAccess(id);
+		const { error } = await deleteParkingAccess(id);
+		if (!error) {
+			showToast('Parking access deleted.', 'success');
+		} else {
+			showToast(error, 'error');
+		}
 	};
 
 	const handleResume = async (id: string) => {
-		await resumeParkingAccess(id);
+		const { error } = await resumeParkingAccess(id);
+		if (!error) {
+			showToast('Parking access resumed.', 'success');
+		} else {
+			showToast(error, 'error');
+		}
 	};
 
 	const formatDate = (dateString: string) => {

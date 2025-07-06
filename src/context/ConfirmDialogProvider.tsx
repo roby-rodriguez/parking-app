@@ -78,7 +78,7 @@ export const ConfirmDialogProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useConfirmContext = () => {
 	const ctx = useContext(ConfirmDialogContext);
 	if (!ctx) {
-		throw new Error('useConfirm must be used within a ConfirmDialogProvider');
+		throw new Error('useConfirmContext must be used within a ConfirmDialogProvider');
 	}
 	return ctx.confirm;
 };
