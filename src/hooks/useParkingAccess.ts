@@ -67,6 +67,31 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		formData: ParkingAccessFormData,
 	): Promise<{ error: string | null }> => {
 		try {
+			// Validate dates and check for overlaps
+			const { data: validationResult, error: validationError } = await supabase.rpc(
+				'validate_parking_access_dates',
+				{
+					p_parking_lot_id: formData.parking_lot_id,
+					p_valid_from: formData.valid_from,
+					p_valid_to: formData.valid_to,
+					p_exclude_id: null,
+				},
+			);
+
+			if (validationError) {
+				return { error: 'Failed to validate parking access dates' };
+			}
+
+			if (
+				!validationResult ||
+				validationResult.length === 0 ||
+				!validationResult[0].is_valid
+			) {
+				const errorMessage =
+					validationResult?.[0]?.error_message || 'Invalid parking access dates';
+				return { error: errorMessage };
+			}
+
 			const { error: createError } = await supabase.from('parking_access').insert([formData]);
 
 			if (createError) {
@@ -87,6 +112,31 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		error: string | null;
 	}> => {
 		try {
+			// Validate dates and check for overlaps (excluding current record)
+			const { data: validationResult, error: validationError } = await supabase.rpc(
+				'validate_parking_access_dates',
+				{
+					p_parking_lot_id: formData.parking_lot_id,
+					p_valid_from: formData.valid_from,
+					p_valid_to: formData.valid_to,
+					p_exclude_id: id,
+				},
+			);
+
+			if (validationError) {
+				return { error: 'Failed to validate parking access dates' };
+			}
+
+			if (
+				!validationResult ||
+				validationResult.length === 0 ||
+				!validationResult[0].is_valid
+			) {
+				const errorMessage =
+					validationResult?.[0]?.error_message || 'Invalid parking access dates';
+				return { error: errorMessage };
+			}
+
 			const { error: updateError } = await supabase
 				.from('parking_access')
 				.update(formData)
