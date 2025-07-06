@@ -148,7 +148,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 			onClick: handleSuspend,
 			hidden: (item) => {
 				const status = getEffectiveStatus(item);
-				return !(status === 'active' || status === 'pending');
+				return status !== 'active';
 			},
 		},
 		{
@@ -165,7 +165,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 			onClick: handleDelete,
 			hidden: (item) => {
 				const effectiveStatus = getEffectiveStatus(item);
-				return effectiveStatus === 'pending';
+				return false;
 			},
 		},
 	];
