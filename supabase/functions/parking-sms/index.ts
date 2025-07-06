@@ -134,9 +134,9 @@ serve(async (req) => {
 		const validTo = new Date(parkingInfo.valid_to);
 		let currentStatus = 'active';
 
-		// Check if manually revoked
-		if (parkingInfo.status === 'revoked') {
-			currentStatus = 'revoked';
+		// Check if manually suspended
+		if (parkingInfo.status === 'suspended') {
+			currentStatus = 'suspended';
 		}
 		// Check if expired
 		else if (now > validTo) {
@@ -149,8 +149,8 @@ serve(async (req) => {
 
 		// Only allow active status
 		if (currentStatus !== 'active') {
-			const errorMessage = currentStatus === 'revoked'
-				? 'Parking access has been revoked'
+			const errorMessage = currentStatus === 'suspended'
+				? 'Parking access has been suspended'
 				: currentStatus === 'expired'
 					? 'Parking access has expired'
 					: 'Parking access is not yet valid';

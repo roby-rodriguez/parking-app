@@ -26,8 +26,9 @@ export default function Admin() {
 		parkingAccess,
 		loading: accessLoading,
 		createParkingAccess,
-		revokeParkingAccess,
+		suspendParkingAccess,
 		deleteParkingAccess,
+		resumeParkingAccess,
 	} = useParkingAccess();
 	const { auditLogs, loading: logsLoading } = useAuditLogs();
 	const { parkingAccessHistory, loading: historyLoading, refetch: refetchHistory } = useParkingAccessHistory();
@@ -88,12 +89,16 @@ export default function Admin() {
 		setEditingId(item.id);
 	};
 
-	const handleRevoke = async (id: string) => {
-		await revokeParkingAccess(id);
+	const handleSuspend = async (id: string) => {
+		await suspendParkingAccess(id);
 	};
 
 	const handleDelete = async (id: string) => {
 		await deleteParkingAccess(id);
+	};
+
+	const handleResume = async (id: string) => {
+		await resumeParkingAccess(id);
 	};
 
 	const formatDate = (dateString: string) => {
@@ -168,8 +173,9 @@ export default function Admin() {
 										<ParkingAccessList
 											parkingAccess={parkingAccess}
 											onEdit={handleEdit}
-											onRevoke={handleRevoke}
+											onSuspend={handleSuspend}
 											onDelete={handleDelete}
+											onResume={handleResume}
 											formatDate={formatDate}
 											refetchHistory={refetchHistory}
 										/>

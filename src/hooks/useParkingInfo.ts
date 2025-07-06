@@ -53,8 +53,8 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 			);
 
 			// Check if access is valid based on calculated status
-			if (currentStatus === 'revoked') {
-				setError('Parking access has been revoked');
+			if (currentStatus === 'suspended') {
+				setError('Parking access has been suspended');
 				return;
 			}
 

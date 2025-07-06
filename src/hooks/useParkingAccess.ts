@@ -12,8 +12,9 @@ interface UseParkingAccessReturn {
 		id: string,
 		formData: ParkingAccessFormData,
 	) => Promise<{ error: string | null }>;
-	revokeParkingAccess: (id: string) => Promise<{ error: string | null }>;
+	suspendParkingAccess: (id: string) => Promise<{ error: string | null }>;
 	deleteParkingAccess: (id: string) => Promise<{ error: string | null }>;
+	resumeParkingAccess: (id: string) => Promise<{ error: string | null }>;
 	refetch: () => Promise<void>;
 }
 
@@ -102,21 +103,21 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		}
 	};
 
-	const revokeParkingAccess = async (id: string): Promise<{ error: string | null }> => {
+	const suspendParkingAccess = async (id: string): Promise<{ error: string | null }> => {
 		try {
-			const { error: revokeError } = await supabase
+			const { error: suspendError } = await supabase
 				.from('parking_access')
-				.update({ status: 'revoked' })
+				.update({ status: 'suspended' })
 				.eq('id', id);
 
-			if (revokeError) {
-				return { error: 'Failed to revoke parking access' };
+			if (suspendError) {
+				return { error: 'Failed to suspend parking access' };
 			}
 
 			await fetchParkingAccess();
 			return { error: null };
 		} catch (err) {
-			return { error: 'Failed to revoke parking access' };
+			return { error: 'Failed to suspend parking access' };
 		}
 	};
 
@@ -138,6 +139,23 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		}
 	};
 
+	const resumeParkingAccess = async (id: string): Promise<{ error: string | null }> => {
+		try {
+			const { error: resumeError } = await supabase.rpc('resume_parking_access', {
+				p_access_id: id,
+			});
+
+			if (resumeError) {
+				return { error: 'Failed to resume parking access' };
+			}
+
+			await fetchParkingAccess();
+			return { error: null };
+		} catch (err) {
+			return { error: 'Failed to resume parking access' };
+		}
+	};
+
 	useEffect(() => {
 		fetchParkingAccess();
 	}, []);
@@ -148,8 +166,9 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 		error,
 		createParkingAccess,
 		updateParkingAccess,
-		revokeParkingAccess,
+		suspendParkingAccess,
 		deleteParkingAccess,
+		resumeParkingAccess,
 		refetch: fetchParkingAccess,
 	};
 };

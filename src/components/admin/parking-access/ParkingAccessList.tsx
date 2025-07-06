@@ -7,8 +7,9 @@ import { getEffectiveStatus, getStatusColorClasses, getStatusLabel } from '@/uti
 type ParkingAccessListProps = {
 	parkingAccess: ParkingAccess[];
 	onEdit: (item: ParkingAccess) => void;
-	onRevoke: (id: string) => void;
+	onSuspend: (id: string) => void;
 	onDelete: (id: string) => void;
+	onResume: (id: string) => void;
 	formatDate: (dateString: string) => string;
 	refetchHistory: () => Promise<void>;
 };
@@ -16,8 +17,9 @@ type ParkingAccessListProps = {
 const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 	parkingAccess,
 	onEdit,
-	onRevoke,
+	onSuspend,
 	onDelete,
+	onResume,
 	formatDate,
 	refetchHistory,
 }) => {
@@ -96,14 +98,27 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		}
 	};
 
-	const handleRevoke = async (item: ParkingAccess) => {
+	const handleSuspend = async (item: ParkingAccess) => {
 		const ok = await confirm({
-			message: `Are you sure you want to revoke parking access for Ap. ${item.parking_lots.apartment}${item.guest_name ? ` (${item.guest_name})` : ''} for the period ${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}?`,
-			confirmLabel: 'Revoke',
+			message: `Are you sure you want to suspend parking access for Ap. ${item.parking_lots.apartment}${item.guest_name ? ` (${item.guest_name})` : ''} for the period ${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}?`,
+			confirmLabel: 'Suspend',
 			cancelLabel: 'Cancel',
 		});
 		if (ok) {
-			await onRevoke(item.id);
+			await onSuspend(item.id);
+			await refetchHistory();
+		}
+	};
+
+	const handleResume = async (item: ParkingAccess) => {
+		const ok = await confirm({
+			message: `Are you sure you want to resume parking access for Ap. ${item.parking_lots.apartment}${item.guest_name ? ` (${item.guest_name})` : ''} for the period ${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}?`,
+			confirmLabel: 'Resume',
+			cancelLabel: 'Cancel',
+		});
+		if (ok) {
+			await onResume(item.id);
+			await refetchHistory();
 		}
 	};
 
@@ -127,14 +142,21 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 			},
 		},
 		{
-			key: 'revoke',
-			label: 'Revoke',
+			key: 'suspend',
+			label: 'Suspend',
 			variant: 'neutral',
-			onClick: handleRevoke,
+			onClick: handleSuspend,
 			hidden: (item) => {
-				const effectiveStatus = getEffectiveStatus(item);
-				return effectiveStatus !== 'active';
+				const status = getEffectiveStatus(item);
+				return !(status === 'active' || status === 'pending');
 			},
+		},
+		{
+			key: 'resume',
+			label: 'Resume',
+			variant: 'primary',
+			onClick: handleResume,
+			hidden: (item) => getEffectiveStatus(item) !== 'suspended',
 		},
 		{
 			key: 'delete',

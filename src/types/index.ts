@@ -5,7 +5,7 @@ export interface ParkingAccess {
 	guest_name: string | null;
 	valid_from: string;
 	valid_to: string;
-	status: 'active' | 'revoked' | 'expired' | 'pending';
+	status: 'active' | 'suspended' | 'expired' | 'pending';
 	parking_lot_id: number;
 	parking_lots: {
 		name: string;
@@ -16,7 +16,7 @@ export interface ParkingAccess {
 			description: string | null;
 		};
 	};
-	computed_status?: 'active' | 'revoked' | 'expired' | 'pending';
+	computed_status?: 'active' | 'suspended' | 'expired' | 'pending';
 }
 
 export interface ParkingAccessHistory {
@@ -26,7 +26,7 @@ export interface ParkingAccessHistory {
 	guest_name: string | null;
 	valid_from: string;
 	valid_to: string;
-	status: string;
+	status: 'active' | 'suspended' | 'expired' | 'pending';
 	parking_lot_id: number;
 	created_at: string;
 	deleted_at: string;

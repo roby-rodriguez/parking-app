@@ -1,6 +1,6 @@
 import { ParkingAccess } from '@/types';
 
-export type ParkingStatus = 'active' | 'revoked' | 'expired' | 'pending';
+export type ParkingStatus = 'active' | 'suspended' | 'expired' | 'pending';
 
 /**
  * Calculate the current status of a parking access based on dates and stored status
@@ -10,9 +10,9 @@ export function calculateParkingStatus(
 	validTo: string,
 	storedStatus: ParkingStatus,
 ): ParkingStatus {
-	// If manually revoked, keep that status
-	if (storedStatus === 'revoked') {
-		return 'revoked';
+	// If manually suspended, keep that status
+	if (storedStatus === 'suspended') {
+		return 'suspended';
 	}
 
 	const now = new Date();
@@ -39,13 +39,13 @@ export function calculateParkingStatus(
  */
 export function getEffectiveStatus(parkingAccess: ParkingAccess): ParkingStatus {
 	if (parkingAccess.computed_status) {
-		return parkingAccess.computed_status;
+		return parkingAccess.computed_status as ParkingStatus;
 	}
 
 	return calculateParkingStatus(
 		parkingAccess.valid_from,
 		parkingAccess.valid_to,
-		parkingAccess.status,
+		parkingAccess.status as ParkingStatus,
 	);
 }
 
@@ -56,8 +56,8 @@ export function getStatusColorClasses(status: ParkingStatus): string {
 	switch (status) {
 		case 'active':
 			return 'bg-green-100 text-green-800';
-		case 'revoked':
-			return 'bg-red-100 text-red-800';
+		case 'suspended':
+			return 'bg-yellow-100 text-yellow-800';
 		case 'expired':
 			return 'bg-orange-100 text-orange-800';
 		case 'pending':
@@ -74,8 +74,8 @@ export function getStatusLabel(status: ParkingStatus): string {
 	switch (status) {
 		case 'active':
 			return 'Active';
-		case 'revoked':
-			return 'Revoked';
+		case 'suspended':
+			return 'Suspended';
 		case 'expired':
 			return 'Expired';
 		case 'pending':
