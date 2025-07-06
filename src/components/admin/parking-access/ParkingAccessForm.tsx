@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ParkingAccessFormData, ParkingLot } from '@/types';
 import {
 	getMinEndDate,
@@ -26,6 +26,9 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 }) => {
 	const [errors, setErrors] = useState<ValidationError[]>([]);
 	const [minStartDate] = useState(getMinStartDate());
+	const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
+	const validFromRef = useRef<HTMLInputElement>(null!);
+	const validToRef = useRef<HTMLInputElement>(null!);
 
 	// Validate form data whenever it changes
 	useEffect(() => {
@@ -43,7 +46,14 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 	};
 
 	const getFieldError = (field: string): string | undefined => {
+		if (!touched[field]) return;
 		return errors.find((error) => error.field === field)?.message;
+	};
+
+	// Focus and open calendar on any click
+	const handleDateInputClick = (ref: React.RefObject<HTMLInputElement>) => () => {
+		ref.current?.showPicker?.();
+		ref.current?.focus();
 	};
 
 	return (
@@ -88,10 +98,13 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 				</div>
 				<div>
 					<input
+						ref={validFromRef}
 						type="date"
 						value={formData.valid_from}
 						min={minStartDate}
 						onChange={(e) => onChange({ ...formData, valid_from: e.target.value })}
+						onBlur={() => setTouched((prev) => ({ ...prev, valid_from: true }))}
+						onClick={handleDateInputClick(validFromRef)}
 						className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 w-full ${
 							getFieldError('valid_from')
 								? 'border-red-300 focus:ring-red-500'
@@ -105,10 +118,13 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 				</div>
 				<div>
 					<input
+						ref={validToRef}
 						type="date"
 						value={formData.valid_to}
 						min={getMinEndDate(formData.valid_from)}
 						onChange={(e) => onChange({ ...formData, valid_to: e.target.value })}
+						onBlur={() => setTouched((prev) => ({ ...prev, valid_to: true }))}
+						onClick={handleDateInputClick(validToRef)}
 						className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 w-full ${
 							getFieldError('valid_to')
 								? 'border-red-300 focus:ring-red-500'
