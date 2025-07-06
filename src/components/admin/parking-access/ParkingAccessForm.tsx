@@ -43,18 +43,24 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 					</option>
 				))}
 			</select>
-			<input
-				type="date"
-				value={formData.valid_from}
-				onChange={(e) => onChange({ ...formData, valid_from: e.target.value })}
-				className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-			/>
-			<input
-				type="date"
-				value={formData.valid_to}
-				onChange={(e) => onChange({ ...formData, valid_to: e.target.value })}
-				className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-			/>
+			<div>
+				<input
+					type="date"
+					value={formData.valid_from}
+					onChange={(e) => onChange({ ...formData, valid_from: e.target.value })}
+					className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+				/>
+				<p className="text-xs text-gray-500 mt-1">Access starts at 12:00 PM</p>
+			</div>
+			<div>
+				<input
+					type="date"
+					value={formData.valid_to}
+					onChange={(e) => onChange({ ...formData, valid_to: e.target.value })}
+					className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+				/>
+				<p className="text-xs text-gray-500 mt-1">Access ends at 12:00 PM</p>
+			</div>
 		</div>
 		<div className="mt-4 flex space-x-3">
 			<button

@@ -29,9 +29,14 @@ export default function Admin() {
 		suspendParkingAccess,
 		deleteParkingAccess,
 		resumeParkingAccess,
+		updateParkingAccess,
 	} = useParkingAccess();
 	const { auditLogs, loading: logsLoading } = useAuditLogs();
-	const { parkingAccessHistory, loading: historyLoading, refetch: refetchHistory } = useParkingAccessHistory();
+	const {
+		parkingAccessHistory,
+		loading: historyLoading,
+		refetch: refetchHistory,
+	} = useParkingAccessHistory();
 	const [activeTab, setActiveTab] = useState<'access' | 'logs' | 'history'>('access');
 
 	// Login state
@@ -57,15 +62,37 @@ export default function Admin() {
 	};
 
 	const handleSubmit = async () => {
-		const { error } = await createParkingAccess(formData);
-		if (!error) {
-			// Reset form on success
-			setFormData({
-				guest_name: '',
-				parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
-				valid_from: '',
-				valid_to: '',
-			});
+		// Append 12:00 time to dates before submitting
+		const formDataWithTime = {
+			...formData,
+			valid_from: formData.valid_from ? `${formData.valid_from}T12:00:00` : '',
+			valid_to: formData.valid_to ? `${formData.valid_to}T12:00:00` : '',
+		};
+
+		if (editingId) {
+			// Update existing parking access
+			const { error } = await updateParkingAccess(editingId, formDataWithTime);
+			if (!error) {
+				setEditingId(null);
+				setFormData({
+					guest_name: '',
+					parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
+					valid_from: '',
+					valid_to: '',
+				});
+			}
+		} else {
+			// Create new parking access
+			const { error } = await createParkingAccess(formDataWithTime);
+			if (!error) {
+				// Reset form on success
+				setFormData({
+					guest_name: '',
+					parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
+					valid_from: '',
+					valid_to: '',
+				});
+			}
 		}
 	};
 
