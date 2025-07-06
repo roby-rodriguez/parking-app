@@ -1,5 +1,6 @@
 import React from 'react';
 import { ColumnDefinition, DataView } from '../shared';
+import { useI18nContext } from '@/context/I18nProvider';
 import { ParkingAccessHistory } from '@/types';
 
 type ParkingAccessHistoryProps = {
@@ -8,66 +9,67 @@ type ParkingAccessHistoryProps = {
 };
 
 const History: React.FC<ParkingAccessHistoryProps> = ({ parkingAccessHistory, formatDate }) => {
+	const { t } = useI18nContext();
 	const columns: ColumnDefinition<ParkingAccessHistory>[] = [
 		{
 			key: 'guest',
-			label: 'Guest',
+			label: t('guest_name'),
 			width: 'w-32',
 			render: (item) => item.guest_name || '-',
 		},
 		{
 			key: 'parking_lot',
-			label: 'Parking Lot',
+			label: t('parking_lot'),
 			width: 'w-32',
 			render: (item) => item.parking_lots.name,
 		},
 		{
 			key: 'gate',
-			label: 'Gate',
+			label: t('gate'),
 			width: 'w-40',
 			render: (item) => item.parking_lots.gates.description,
 		},
 		{
 			key: 'apartment',
-			label: 'Apartment',
+			label: t('apartment'),
 			width: 'w-32',
 			render: (item) => item.parking_lots.apartment,
 		},
 		{
 			key: 'address',
-			label: 'Address',
+			label: t('address'),
 			width: 'w-48',
 			render: (item) => item.parking_lots.address,
 		},
 		{
 			key: 'stay_period',
-			label: 'Stay Period',
+			label: t('valid_period'),
 			width: 'w-40',
 			render: (item) => `${formatDate(item.valid_from)} - ${formatDate(item.valid_to)}`,
 		},
 		{
 			key: 'status',
-			label: 'Status at Deletion',
+			label: t('status'),
 			width: 'w-32',
 			render: (item) => (
 				<span
 					className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
 						item.status === 'active'
 							? 'bg-green-100 text-green-800'
-							: item.status === 'revoked'
-								? 'bg-red-100 text-red-800'
-								: item.status === 'expired'
-									? 'bg-orange-100 text-orange-800'
+							: item.status === 'expired'
+								? 'bg-orange-100 text-orange-800'
+								: item.status === 'suspended'
+									? 'bg-blue-100 text-blue-800'
 									: 'bg-gray-100 text-gray-800'
 					}`}
 				>
-					{item.status}
+					{t(item.status)}
 				</span>
 			),
 		},
 		{
 			key: 'deleted_at',
-			label: 'Deleted At',
+			label: t('deleted_at'),
 			width: 'w-32',
 			render: (item) => formatDate(item.deleted_at),
 		},
@@ -78,7 +80,7 @@ const History: React.FC<ParkingAccessHistoryProps> = ({ parkingAccessHistory, fo
 		return (
 			<div className="flex items-center space-x-2">
 				<span className="text-sm font-medium text-gray-900">
-					Ap. {item.parking_lots.apartment}:
+					{t('apartment')}. {item.parking_lots.apartment}:
 				</span>
 				<span className="text-sm text-gray-600">
 					{formatDate(item.valid_from)} - {formatDate(item.valid_to)}
@@ -91,7 +93,7 @@ const History: React.FC<ParkingAccessHistoryProps> = ({ parkingAccessHistory, fo
 		<DataView
 			data={parkingAccessHistory}
 			columns={columns}
-			emptyMessage="No past guests found."
+			emptyMessage={t('no_past_guests')}
 			cardHeaderRenderer={cardHeaderRenderer}
 			cardContentKeys={['guest', 'parking_lot', 'gate']}
 		/>

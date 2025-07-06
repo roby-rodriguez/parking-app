@@ -11,6 +11,7 @@ import {
 } from '@/components/admin';
 import { ConfirmDialogProvider } from '@/context/ConfirmDialogProvider';
 import { ToastProvider, useToastContext } from '@/context/ToastProvider';
+import { useI18nContext } from '@/context/I18nProvider';
 import {
 	useAuditLogs,
 	useAuth,
@@ -21,6 +22,7 @@ import {
 import { LoginData, ParkingAccess, ParkingAccessFormData } from '@/types';
 
 export default function Admin() {
+	const { t } = useI18nContext();
 	const { show: showToast } = useToastContext();
 	const { session, loading: authLoading, login, logout } = useAuth();
 	const { parkingLots, loading: lotsLoading } = useParkingLots();
@@ -75,7 +77,7 @@ export default function Admin() {
 			// Update existing parking access
 			const { error } = await updateParkingAccess(editingId, formDataWithTime);
 			if (!error) {
-				showToast('Parking access updated successfully!', 'success');
+				showToast(t('parking_access_updated_successfully'), 'success');
 				setEditingId(null);
 				setFormData({
 					guest_name: '',
@@ -90,7 +92,7 @@ export default function Admin() {
 			// Create new parking access
 			const { error } = await createParkingAccess(formDataWithTime);
 			if (!error) {
-				showToast('Parking access created successfully!', 'success');
+				showToast(t('parking_access_created_successfully'), 'success');
 				setFormData({
 					guest_name: '',
 					parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
@@ -126,7 +128,7 @@ export default function Admin() {
 	const handleSuspend = async (id: string) => {
 		const { error } = await suspendParkingAccess(id);
 		if (!error) {
-			showToast('Parking access suspended.', 'success');
+			showToast(t('parking_access_suspended'), 'success');
 		} else {
 			showToast(error, 'error');
 		}
@@ -135,7 +137,7 @@ export default function Admin() {
 	const handleDelete = async (id: string) => {
 		const { error } = await deleteParkingAccess(id);
 		if (!error) {
-			showToast('Parking access deleted.', 'success');
+			showToast(t('parking_access_deleted'), 'success');
 		} else {
 			showToast(error, 'error');
 		}
@@ -144,7 +146,7 @@ export default function Admin() {
 	const handleResume = async (id: string) => {
 		const { error } = await resumeParkingAccess(id);
 		if (!error) {
-			showToast('Parking access resumed.', 'success');
+			showToast(t('parking_access_resumed'), 'success');
 		} else {
 			showToast(error, 'error');
 		}

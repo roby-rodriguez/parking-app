@@ -1,3 +1,4 @@
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import {
 	OpenGateButton,
@@ -6,9 +7,12 @@ import {
 	ParkingLoading,
 	ParkingNotFound,
 } from '@/components/park';
+import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
+import { useI18nContext } from '@/context/I18nProvider';
 import { useParkingInfo } from '@/hooks';
 
-export default function Park() {
+const Park = () => {
+	const { t } = useI18nContext();
 	const { uuid } = useParams<{ uuid: string }>();
 	const { parkingInfo, loading, error, opening, lastAction, openGate, refetch } =
 		useParkingInfo(uuid);
@@ -27,6 +31,9 @@ export default function Park() {
 
 	return (
 		<div className="min-h-screen h-full bg-gray-50 flex items-center justify-center p-4">
+			<div className="fixed top-4 right-4 z-50 px-2">
+				<LanguageSwitcher />
+			</div>
 			<ParkingInfoCard parkingInfo={parkingInfo}>
 				<OpenGateButton
 					onOpen={openGate}
@@ -36,10 +43,12 @@ export default function Park() {
 				/>
 				<div className="text-center">
 					<p className="text-xs text-gray-500">
-						This access is valid for your entire stay.
+						{t('open_gate_info')}
 					</p>
 				</div>
 			</ParkingInfoCard>
 		</div>
 	);
-}
+};
+
+export default Park;

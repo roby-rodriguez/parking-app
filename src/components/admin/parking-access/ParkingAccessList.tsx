@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActionDefinition, ColumnDefinition, DataView } from '../shared';
 import { useConfirmContext } from '@/context/ConfirmDialogProvider';
+import { useI18nContext } from '@/context/I18nProvider';
 import { ParkingAccess } from '@/types';
 import { getEffectiveStatus, getStatusColorClasses, getStatusLabel } from '@/utils/statusUtils';
 
@@ -23,24 +24,25 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 	formatDate,
 	refetchHistory,
 }) => {
+	const { t } = useI18nContext();
 	const confirm = useConfirmContext();
 
 	const columns: ColumnDefinition<ParkingAccess>[] = [
 		{
 			key: 'guest',
-			label: 'Guest',
+			label: t('guest_name'),
 			width: 'w-32',
 			render: (item) => item.guest_name || '-',
 		},
 		{
 			key: 'parking_lot',
-			label: 'Parking Lot',
+			label: t('parking_lot'),
 			width: 'w-32',
 			render: (item) => item.parking_lots.name,
 		},
 		{
 			key: 'gate',
-			label: 'Gate',
+			label: t('gate'),
 			width: 'w-40',
 			render: (item) => (
 				<>
@@ -53,7 +55,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		},
 		{
 			key: 'status',
-			label: 'Status',
+			label: t('status'),
 			width: 'w-24',
 			render: (item) => {
 				const effectiveStatus = getEffectiveStatus(item);
@@ -61,26 +63,26 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 					<span
 						className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColorClasses(effectiveStatus)}`}
 					>
-						{getStatusLabel(effectiveStatus)}
+						{t(getStatusLabel(effectiveStatus).toLowerCase())}
 					</span>
 				);
 			},
 		},
 		{
 			key: 'apartment',
-			label: 'Apartment',
+			label: t('apartment'),
 			width: 'w-32',
 			render: (item) => item.parking_lots.apartment,
 		},
 		{
 			key: 'address',
-			label: 'Address',
+			label: t('address'),
 			width: 'w-48',
 			render: (item) => item.parking_lots.address,
 		},
 		{
 			key: 'valid_period',
-			label: 'Valid Period',
+			label: t('valid_period'),
 			width: 'w-40',
 			render: (item) => `${formatDate(item.valid_from)} - ${formatDate(item.valid_to)}`,
 		},
@@ -88,9 +90,15 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 
 	const handleDelete = async (item: ParkingAccess) => {
 		const ok = await confirm({
-			message: `Are you sure you want to permanently delete parking access for Ap. ${item.parking_lots.apartment}${item.guest_name ? ` (${item.guest_name})` : ''} for the period ${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}?`,
-			confirmLabel: 'Delete',
-			cancelLabel: 'Cancel',
+			message: t('are_you_sure_delete')
+				.replace('{apartment}', item.parking_lots.apartment)
+				.replace('{guest}', item.guest_name ? ` (${item.guest_name})` : '')
+				.replace(
+					'{period}',
+					`${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}`,
+				),
+			confirmLabel: t('delete'),
+			cancelLabel: t('cancel'),
 		});
 		if (ok) {
 			await onDelete(item.id);
@@ -100,9 +108,15 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 
 	const handleSuspend = async (item: ParkingAccess) => {
 		const ok = await confirm({
-			message: `Are you sure you want to suspend parking access for Ap. ${item.parking_lots.apartment}${item.guest_name ? ` (${item.guest_name})` : ''} for the period ${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}?`,
-			confirmLabel: 'Suspend',
-			cancelLabel: 'Cancel',
+			message: t('are_you_sure_suspend')
+				.replace('{apartment}', item.parking_lots.apartment)
+				.replace('{guest}', item.guest_name ? ` (${item.guest_name})` : '')
+				.replace(
+					'{period}',
+					`${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}`,
+				),
+			confirmLabel: t('suspend'),
+			cancelLabel: t('cancel'),
 		});
 		if (ok) {
 			await onSuspend(item.id);
@@ -112,9 +126,15 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 
 	const handleResume = async (item: ParkingAccess) => {
 		const ok = await confirm({
-			message: `Are you sure you want to resume parking access for Ap. ${item.parking_lots.apartment}${item.guest_name ? ` (${item.guest_name})` : ''} for the period ${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}?`,
-			confirmLabel: 'Resume',
-			cancelLabel: 'Cancel',
+			message: t('are_you_sure_resume')
+				.replace('{apartment}', item.parking_lots.apartment)
+				.replace('{guest}', item.guest_name ? ` (${item.guest_name})` : '')
+				.replace(
+					'{period}',
+					`${formatDate(item.valid_from)} – ${formatDate(item.valid_to)}`,
+				),
+			confirmLabel: t('resume'),
+			cancelLabel: t('cancel'),
 		});
 		if (ok) {
 			await onResume(item.id);
@@ -125,7 +145,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 	const actions: ActionDefinition<ParkingAccess>[] = [
 		{
 			key: 'view',
-			label: 'View',
+			label: t('view'),
 			variant: 'secondary',
 			onClick: (item) => {
 				window.open(`/park/${item.uuid}`, '_blank', 'noopener,noreferrer');
@@ -133,7 +153,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		},
 		{
 			key: 'edit',
-			label: 'Edit',
+			label: t('edit'),
 			variant: 'primary',
 			onClick: onEdit,
 			hidden: (item) => {
@@ -143,7 +163,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		},
 		{
 			key: 'suspend',
-			label: 'Suspend',
+			label: t('suspend'),
 			variant: 'neutral',
 			onClick: handleSuspend,
 			hidden: (item) => {
@@ -153,20 +173,17 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		},
 		{
 			key: 'resume',
-			label: 'Resume',
+			label: t('resume'),
 			variant: 'primary',
 			onClick: handleResume,
 			hidden: (item) => getEffectiveStatus(item) !== 'suspended',
 		},
 		{
 			key: 'delete',
-			label: 'Delete',
+			label: t('delete'),
 			variant: 'danger',
 			onClick: handleDelete,
-			hidden: (item) => {
-				const effectiveStatus = getEffectiveStatus(item);
-				return false;
-			},
+			hidden: (item) => false,
 		},
 	];
 
@@ -212,11 +229,11 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 
 	return (
 		<DataView
-			title="Parking Access List"
+			title={t('parking_access_admin') + ' ' + t('actions')}
 			data={parkingAccess}
 			columns={columns}
 			actions={actions}
-			emptyMessage="No parking access records found."
+			emptyMessage={t('no_records')}
 			cardHeaderRenderer={cardHeaderRenderer}
 			cardContentKeys={['status', 'guest', 'parking_lot', 'gate']}
 		/>

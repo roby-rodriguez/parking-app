@@ -1,5 +1,6 @@
 import React from 'react';
 import { ColumnDefinition, DataView } from '../shared';
+import { useI18nContext } from '@/context/I18nProvider';
 import { AuditLog } from '@/types';
 
 type AuditLogsProps = {
@@ -8,58 +9,59 @@ type AuditLogsProps = {
 };
 
 const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => {
+	const { t } = useI18nContext();
 	const columns: ColumnDefinition<AuditLog>[] = [
 		{
 			key: 'time',
-			label: 'Time',
+			label: t('time'),
 			width: 'w-40',
 			render: (item) => formatDateTime(item.created_at),
 		},
 		{
 			key: 'action',
-			label: 'Action',
+			label: t('action'),
 			width: 'w-32',
 			render: (item) => item.action,
 		},
 		{
 			key: 'guest',
-			label: 'Guest',
+			label: t('guest_name'),
 			width: 'w-32',
 			render: (item) => item.parking_access?.guest_name || 'N/A',
 		},
 		{
 			key: 'gate',
-			label: 'Gate',
+			label: t('gate'),
 			width: 'w-40',
 			render: (item) => item.gates?.description || 'N/A',
 		},
 		{
 			key: 'parking_lot',
-			label: 'Parking Lot',
+			label: t('parking_lot'),
 			width: 'w-32',
 			render: (item) => item.parking_access?.parking_lots?.name || 'N/A',
 		},
 		{
 			key: 'apartment',
-			label: 'Apartment',
+			label: t('apartment'),
 			width: 'w-32',
 			render: (item) => item.parking_access?.parking_lots?.apartment || 'N/A',
 		},
 		{
 			key: 'address',
-			label: 'Address',
+			label: t('address'),
 			width: 'w-48',
 			render: (item) => item.parking_access?.parking_lots?.address || 'N/A',
 		},
 		{
 			key: 'ip_address',
-			label: 'IP Address',
+			label: t('ip_address'),
 			width: 'w-32',
 			render: (item) => <span title={item.ip_address || ''}>{item.ip_address || 'N/A'}</span>,
 		},
 		{
 			key: 'user_agent',
-			label: 'User Agent',
+			label: t('user_agent'),
 			width: 'w-48',
 			render: (item) => (
 				<span className="truncate block max-w-xs" title={item.user_agent || ''}>
@@ -74,7 +76,7 @@ const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => {
 		return (
 			<div className="flex items-center space-x-2">
 				<span className="text-sm font-medium text-gray-900">
-					Ap. {item.parking_access?.parking_lots?.apartment || 'N/A'}:
+					{t('apartment')}. {item.parking_access?.parking_lots?.apartment || 'N/A'}:
 				</span>
 				<span className="text-sm text-gray-600">{formatDateTime(item.created_at)}</span>
 			</div>
@@ -85,7 +87,7 @@ const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => {
 		<DataView
 			data={auditLogs}
 			columns={columns}
-			emptyMessage="No audit logs found."
+			emptyMessage={t('no_audit_logs')}
 			cardHeaderRenderer={cardHeaderRenderer}
 			cardContentKeys={['guest', 'parking_lot', 'gate', 'ip_address', 'user_agent']}
 		/>

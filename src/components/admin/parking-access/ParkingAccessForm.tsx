@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useI18nContext } from '@/context/I18nProvider';
 import { ParkingAccessFormData, ParkingLot } from '@/types';
 import {
 	getMinEndDate,
@@ -24,6 +25,7 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 	onCancel,
 	editingId,
 }) => {
+	const { t } = useI18nContext();
 	const [errors, setErrors] = useState<ValidationError[]>([]);
 	const [minStartDate] = useState(getMinStartDate());
 	const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
@@ -46,7 +48,7 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 	};
 
 	const getFieldError = (field: string): string | undefined => {
-		if (!touched[field]) return;
+		if (!touched[field]) {return;}
 		return errors.find((error) => error.field === field)?.message;
 	};
 
@@ -59,13 +61,13 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 	return (
 		<div className="bg-gray-50 p-6 rounded-lg">
 			<h2 className="text-lg font-medium text-gray-900 mb-4">
-				{editingId ? 'Edit Parking Access' : 'Create New Parking Access'}
+				{editingId ? t('edit') + ' ' + t('parking_access') : t('create') + ' ' + t('parking_access')}
 			</h2>
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 				<div>
 					<input
 						type="text"
-						placeholder="Guest Name"
+						placeholder={t('guest_name')}
 						value={formData.guest_name}
 						onChange={(e) => onChange({ ...formData, guest_name: e.target.value })}
 						className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
@@ -82,7 +84,7 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 								: 'border-gray-300 focus:ring-blue-500'
 						}`}
 					>
-						<option value={0}>Select Apartment</option>
+						<option value={0}>{t('please_select_apartment')}</option>
 						{parkingLots.map((lot) => (
 							<option key={lot.id} value={lot.id}>
 								{`Ap ${lot.apartment}`}
@@ -110,7 +112,7 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 								: 'border-gray-300 focus:ring-blue-500'
 						}`}
 					/>
-					<p className="text-xs text-gray-500 mt-1">Access starts at 12:00 PM</p>
+					<p className="text-xs text-gray-500 mt-1">{t('access_starts')}</p>
 					{getFieldError('valid_from') && (
 						<p className="text-xs text-red-500 mt-1">{getFieldError('valid_from')}</p>
 					)}
@@ -130,7 +132,7 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 								: 'border-gray-300 focus:ring-blue-500'
 						}`}
 					/>
-					<p className="text-xs text-gray-500 mt-1">Access ends at 12:00 PM</p>
+					<p className="text-xs text-gray-500 mt-1">{t('access_ends')}</p>
 					{getFieldError('valid_to') && (
 						<p className="text-xs text-red-500 mt-1">{getFieldError('valid_to')}</p>
 					)}
@@ -146,14 +148,14 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 							: 'bg-blue-600 text-white hover:bg-blue-700'
 					}`}
 				>
-					{editingId ? 'Update' : 'Create'}
+					{editingId ? t('update') : t('create')}
 				</button>
 				{editingId && onCancel && (
 					<button
 						onClick={onCancel}
 						className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
 					>
-						Cancel
+						{t('cancel')}
 					</button>
 				)}
 			</div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActionDefinition, ColumnDefinition } from './DataView';
 import DataViewActions from './DataViewActions';
+import { useI18nContext } from '@/context/I18nProvider';
 
 interface DataViewTableProps<T> {
 	data: T[];
@@ -15,6 +16,7 @@ const DataViewTable = <T extends { id: string }>({
 	actions,
 	className = '',
 }: DataViewTableProps<T>) => {
+	const { t } = useI18nContext();
 	return (
 		<div className={`overflow-x-auto ${className}`}>
 			<table className="w-full divide-y divide-gray-200">
@@ -32,7 +34,7 @@ const DataViewTable = <T extends { id: string }>({
 						))}
 						{actions.length > 0 && (
 							<th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-								Actions
+								{t('actions')}
 							</th>
 						)}
 					</tr>
