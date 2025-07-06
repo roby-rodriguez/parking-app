@@ -74,14 +74,13 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 				<div>
 					<select
 						value={formData.parking_lot_id}
-						onChange={(e) =>
-							onChange({ ...formData, parking_lot_id: parseInt(e.target.value) })
-						}
-						className={`px-3 py-2 border rounded-md w-full ${
+						onChange={(e) => onChange({ ...formData, parking_lot_id: parseInt(e.target.value) })}
+						onBlur={() => setTouched((prev) => ({ ...prev, parking_lot_id: true }))}
+						className={`px-3 py-2 border rounded-md w-full h-[42px] focus:outline-none focus:ring-2 ${
 							getFieldError('parking_lot_id')
 								? 'border-red-300 focus:ring-red-500'
 								: 'border-gray-300 focus:ring-blue-500'
-						} focus:outline-none focus:ring-2`}
+						}`}
 					>
 						<option value={0}>Select Apartment</option>
 						{parkingLots.map((lot) => (
