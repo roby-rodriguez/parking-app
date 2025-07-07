@@ -158,7 +158,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 			onClick: onEdit,
 			hidden: (item) => {
 				const effectiveStatus = getEffectiveStatus(item);
-				return !['active', 'pending'].includes(effectiveStatus);
+				return !['active', 'pending', 'expired'].includes(effectiveStatus);
 			},
 		},
 		{

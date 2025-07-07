@@ -48,8 +48,11 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 	};
 
 	const getFieldError = (field: string): string | undefined => {
-		if (!touched[field]) {return;}
-		return errors.find((error) => error.field === field)?.message;
+		// When editing, show all errors immediately. When creating, only show touched fields.
+		if (editingId || touched[field]) {
+			return errors.find((error) => error.field === field)?.message;
+		}
+		return undefined;
 	};
 
 	// Focus and open calendar on any click
