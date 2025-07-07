@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useI18nContext } from '@/context/I18nProvider';
 import { supabase } from '@/lib/supabaseClient';
 import { ParkingAccess, ParkingAccessFormData } from '@/types';
 import { getEffectiveStatus } from '@/utils/statusUtils';
@@ -19,6 +20,7 @@ interface UseParkingAccessReturn {
 }
 
 export const useParkingAccess = (): UseParkingAccessReturn => {
+	const { t } = useI18nContext();
 	const [parkingAccess, setParkingAccess] = useState<ParkingAccess[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -42,12 +44,12 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 					.order('created_at', { ascending: false });
 
 				if (fallbackError) {
-					setError('Failed to load parking access');
+					setError(t('load_error'));
 					return;
 				}
 
 				// Add computed status to each record
-				const recordsWithComputedStatus = (fallbackData || []).map((record) => ({
+				const recordsWithComputedStatus = (fallbackData || []).map((record: ParkingAccess) => ({
 					...record,
 					computed_status: getEffectiveStatus(record),
 				}));
@@ -57,7 +59,7 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 				setParkingAccess(data || []);
 			}
 		} catch (err) {
-			setError('Failed to load parking access');
+			setError(t('load_error'));
 		} finally {
 			setLoading(false);
 		}
@@ -79,7 +81,7 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 			);
 
 			if (validationError) {
-				return { error: 'Failed to validate parking access dates' };
+				return { error: t('validate_error') };
 			}
 
 			if (
@@ -87,21 +89,20 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 				validationResult.length === 0 ||
 				!validationResult[0].is_valid
 			) {
-				const errorMessage =
-					validationResult?.[0]?.error_message || 'Invalid parking access dates';
-				return { error: errorMessage };
+				const errorMessage = validationResult?.[0]?.error_message || 'invalid_dates';
+				return { error: t(errorMessage) };
 			}
 
 			const { error: createError } = await supabase.from('parking_access').insert([formData]);
 
 			if (createError) {
-				return { error: 'Failed to create parking access' };
+				return { error: t('create_error') };
 			}
 
 			await fetchParkingAccess();
 			return { error: null };
 		} catch (err) {
-			return { error: 'Failed to create parking access' };
+			return { error: t('create_error') };
 		}
 	};
 
@@ -124,7 +125,7 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 			);
 
 			if (validationError) {
-				return { error: 'Failed to validate parking access dates' };
+				return { error: t('validate_error') };
 			}
 
 			if (
@@ -132,9 +133,8 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 				validationResult.length === 0 ||
 				!validationResult[0].is_valid
 			) {
-				const errorMessage =
-					validationResult?.[0]?.error_message || 'Invalid parking access dates';
-				return { error: errorMessage };
+				const errorMessage = validationResult?.[0]?.error_message || 'invalid_dates';
+				return { error: t(errorMessage) };
 			}
 
 			const { error: updateError } = await supabase
@@ -143,13 +143,13 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 				.eq('id', id);
 
 			if (updateError) {
-				return { error: 'Failed to update parking access' };
+				return { error: t('update_error') };
 			}
 
 			await fetchParkingAccess();
 			return { error: null };
 		} catch (err) {
-			return { error: 'Failed to update parking access' };
+			return { error: t('update_error') };
 		}
 	};
 
@@ -161,13 +161,13 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 				.eq('id', id);
 
 			if (suspendError) {
-				return { error: 'Failed to suspend parking access' };
+				return { error: t('suspend_error') };
 			}
 
 			await fetchParkingAccess();
 			return { error: null };
 		} catch (err) {
-			return { error: 'Failed to suspend parking access' };
+			return { error: t('suspend_error') };
 		}
 	};
 
@@ -179,13 +179,13 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 			});
 
 			if (deleteError) {
-				return { error: 'Failed to delete parking access' };
+				return { error: t('delete_error') };
 			}
 
 			await fetchParkingAccess();
 			return { error: null };
 		} catch (err) {
-			return { error: 'Failed to delete parking access' };
+			return { error: t('delete_error') };
 		}
 	};
 
@@ -196,13 +196,13 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 			});
 
 			if (resumeError) {
-				return { error: 'Failed to resume parking access' };
+				return { error: t('resume_error') };
 			}
 
 			await fetchParkingAccess();
 			return { error: null };
 		} catch (err) {
-			return { error: 'Failed to resume parking access' };
+			return { error: t('resume_error') };
 		}
 	};
 

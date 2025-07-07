@@ -75,7 +75,7 @@ export default function Admin() {
 
 		if (editingId) {
 			// Update existing parking access
-			const { error } = await updateParkingAccess(editingId, formDataWithTime);
+			const { error } = await updateParkingAccess(editingId, formDataWithTime, t);
 			if (!error) {
 				showToast(t('parking_access_updated_successfully'), 'success');
 				setEditingId(null);
@@ -90,7 +90,7 @@ export default function Admin() {
 			}
 		} else {
 			// Create new parking access
-			const { error } = await createParkingAccess(formDataWithTime);
+			const { error } = await createParkingAccess(formDataWithTime, t);
 			if (!error) {
 				showToast(t('parking_access_created_successfully'), 'success');
 				setFormData({
@@ -126,7 +126,7 @@ export default function Admin() {
 	};
 
 	const handleSuspend = async (id: string) => {
-		const { error } = await suspendParkingAccess(id);
+		const { error } = await suspendParkingAccess(id, t);
 		if (!error) {
 			showToast(t('parking_access_suspended'), 'success');
 		} else {
@@ -135,7 +135,7 @@ export default function Admin() {
 	};
 
 	const handleDelete = async (id: string) => {
-		const { error } = await deleteParkingAccess(id);
+		const { error } = await deleteParkingAccess(id, t);
 		if (!error) {
 			showToast(t('parking_access_deleted'), 'success');
 		} else {
@@ -144,30 +144,12 @@ export default function Admin() {
 	};
 
 	const handleResume = async (id: string) => {
-		const { error } = await resumeParkingAccess(id);
+		const { error } = await resumeParkingAccess(id, t);
 		if (!error) {
 			showToast(t('parking_access_resumed'), 'success');
 		} else {
 			showToast(error, 'error');
 		}
-	};
-
-	const formatDate = (dateString: string) => {
-		return new Date(dateString).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		});
-	};
-
-	const formatDateTime = (dateString: string) => {
-		return new Date(dateString).toLocaleString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
 	};
 
 	useEffect(() => {
@@ -227,18 +209,16 @@ export default function Admin() {
 											onSuspend={handleSuspend}
 											onDelete={handleDelete}
 											onResume={handleResume}
-											formatDate={formatDate}
-											refetchHistory={refetchHistory}
+											refetchHistory={(t) => refetchHistory(t)}
 										/>
 									</ConfirmDialogProvider>
 								</div>
 							) : activeTab === 'history' ? (
 								<History
 									parkingAccessHistory={parkingAccessHistory}
-									formatDate={formatDate}
 								/>
 							) : (
-								<AuditLogs auditLogs={auditLogs} formatDateTime={formatDateTime} />
+								<AuditLogs auditLogs={auditLogs} />
 							)}
 						</div>
 					)}

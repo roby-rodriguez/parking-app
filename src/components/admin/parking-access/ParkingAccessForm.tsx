@@ -34,12 +34,12 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 
 	// Validate form data whenever it changes
 	useEffect(() => {
-		const validation = validateParkingAccessForm(formData);
+		const validation = validateParkingAccessForm(formData, t);
 		setErrors(validation.errors);
-	}, [formData]);
+	}, [formData, t]);
 
 	const handleSubmit = () => {
-		const validation = validateParkingAccessForm(formData);
+		const validation = validateParkingAccessForm(formData, t);
 		if (validation.isValid) {
 			onSubmit();
 		} else {

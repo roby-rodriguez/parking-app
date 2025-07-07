@@ -2,6 +2,7 @@ import React from 'react';
 import { ActionDefinition, ColumnDefinition, DataView } from '../shared';
 import { useConfirmContext } from '@/context/ConfirmDialogProvider';
 import { useI18nContext } from '@/context/I18nProvider';
+import { useLocalizedDate } from '@/utils/dateUtils';
 import { ParkingAccess } from '@/types';
 import { getEffectiveStatus, getStatusColorClasses, getStatusLabel } from '@/utils/statusUtils';
 
@@ -11,8 +12,7 @@ type ParkingAccessListProps = {
 	onSuspend: (id: string) => void;
 	onDelete: (id: string) => void;
 	onResume: (id: string) => void;
-	formatDate: (dateString: string) => string;
-	refetchHistory: () => Promise<void>;
+	refetchHistory: (t: (key: string) => string) => Promise<void>;
 };
 
 const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
@@ -21,10 +21,10 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 	onSuspend,
 	onDelete,
 	onResume,
-	formatDate,
 	refetchHistory,
 }) => {
 	const { t } = useI18nContext();
+	const { formatDate } = useLocalizedDate();
 	const confirm = useConfirmContext();
 
 	const columns: ColumnDefinition<ParkingAccess>[] = [
@@ -102,7 +102,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		});
 		if (ok) {
 			await onDelete(item.id);
-			await refetchHistory();
+			await refetchHistory(t);
 		}
 	};
 
@@ -120,7 +120,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		});
 		if (ok) {
 			await onSuspend(item.id);
-			await refetchHistory();
+			await refetchHistory(t);
 		}
 	};
 
@@ -138,7 +138,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 		});
 		if (ok) {
 			await onResume(item.id);
-			await refetchHistory();
+			await refetchHistory(t);
 		}
 	};
 

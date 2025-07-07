@@ -2,14 +2,16 @@ import React from 'react';
 import { ColumnDefinition, DataView } from '../shared';
 import { useI18nContext } from '@/context/I18nProvider';
 import { ParkingAccessHistory } from '@/types';
+import { useLocalizedDate } from '@/utils/dateUtils';
 
 type ParkingAccessHistoryProps = {
 	parkingAccessHistory: ParkingAccessHistory[];
-	formatDate: (dateString: string) => string;
 };
 
-const History: React.FC<ParkingAccessHistoryProps> = ({ parkingAccessHistory, formatDate }) => {
+const History: React.FC<ParkingAccessHistoryProps> = ({ parkingAccessHistory }) => {
 	const { t } = useI18nContext();
+	const { formatDate } = useLocalizedDate();
+
 	const columns: ColumnDefinition<ParkingAccessHistory>[] = [
 		{
 			key: 'guest',
@@ -95,7 +97,7 @@ const History: React.FC<ParkingAccessHistoryProps> = ({ parkingAccessHistory, fo
 			columns={columns}
 			emptyMessage={t('no_past_guests')}
 			cardHeaderRenderer={cardHeaderRenderer}
-			cardContentKeys={['guest', 'parking_lot', 'gate']}
+			cardContentKeys={['guest', 'parking_lot', 'gate', 'stay_period']}
 		/>
 	);
 };

@@ -43,7 +43,7 @@ serve(async (req) => {
 
 		if (!uuid) {
 			return new Response(
-				JSON.stringify({ error: 'Missing access token (uuid)' }),
+				JSON.stringify({ error: 'missing_access_token' }),
 				{ status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
@@ -79,7 +79,7 @@ serve(async (req) => {
 				if (currentAttempts >= 5) {
 					// console.log(`Rate limit exceeded for ${uuid}: ${currentAttempts} attempts`);
 					return new Response(JSON.stringify({
-						error: 'Rate limit exceeded, please try again later.',
+						error: 'rate_limit_exceeded',
 					}), {
 						status: 429,
 						headers: {
@@ -123,7 +123,7 @@ serve(async (req) => {
 
 		if (accessError || !parkingInfo || !parkingInfo.parking_lots || !parkingInfo.parking_lots.gates) {
 			return new Response(
-				JSON.stringify({ error: 'Invalid parking access' }),
+				JSON.stringify({ error: 'invalid_parking_access' }),
 				{ status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
@@ -149,14 +149,14 @@ serve(async (req) => {
 
 		// Only allow active status
 		if (currentStatus !== 'active') {
-			const errorMessage = currentStatus === 'suspended'
-				? 'Parking access has been suspended'
+			const errorCode = currentStatus === 'suspended'
+				? 'parking_access_suspended'
 				: currentStatus === 'expired'
-					? 'Parking access has expired'
-					: 'Parking access is not yet valid';
+					? 'parking_access_expired'
+					: 'parking_access_not_valid';
 
 			return new Response(
-				JSON.stringify({ error: errorMessage }),
+				JSON.stringify({ error: errorCode }),
 				{ status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
@@ -170,7 +170,7 @@ serve(async (req) => {
 		if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber || !gatePhoneNumber) {
 			console.error('Twilio or Gate phone number configuration is missing.');
 			return new Response(
-				JSON.stringify({ error: 'System configuration error.' }),
+				JSON.stringify({ error: 'system_configuration_error' }),
 				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
@@ -194,7 +194,7 @@ serve(async (req) => {
 			const errorText = await callResponse.text();
 			console.error('Twilio call failed:', errorText);
 			return new Response(
-				JSON.stringify({ error: 'Failed to open gate' }),
+				JSON.stringify({ error: 'failed_to_open_gate' }),
 				{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 			);
 		}
@@ -220,7 +220,8 @@ serve(async (req) => {
 		return new Response(
 			JSON.stringify({
 				status: 'success',
-				message: `Opening gate ${parkingInfo.parking_lots.gates.name}, please wait...`,
+				message: 'opening_gate_please_wait',
+				gateName: parkingInfo.parking_lots.gates.name,
 			}),
 			{ status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 		);
@@ -228,7 +229,7 @@ serve(async (req) => {
 	} catch (error) {
 		console.error('Error in parking-sms function:', error);
 		return new Response(
-			JSON.stringify({ error: 'Internal server error' }),
+			JSON.stringify({ error: 'internal_server_error' }),
 			{ status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
 		);
 	}

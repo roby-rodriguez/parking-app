@@ -1,5 +1,6 @@
 import { FunctionsError } from '@supabase/functions-js/src/types';
 import { useCallback, useEffect, useState } from 'react';
+import { useI18nContext } from '@/context/I18nProvider';
 import { supabase } from '@/lib/supabaseClient';
 import { ParkingInfo } from '@/types';
 import { calculateParkingStatus } from '@/utils/statusUtils';
@@ -16,6 +17,7 @@ interface UseParkingInfoReturn {
 }
 
 export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn => {
+	const { t } = useI18nContext();
 	const [parkingInfo, setParkingInfo] = useState<ParkingInfo | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -24,7 +26,7 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 
 	const fetchParkingInfo = useCallback(async () => {
 		if (!uuid) {
-			setError('Invalid parking access URL');
+			setError(t('invalid_parking_url'));
 			setLoading(false);
 			return;
 		}
@@ -36,12 +38,12 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 			const { data: results, error: fetchError } = await supabase.rpc('get_parking_info_by_uuid', { p_uuid: uuid });
 
 			if (fetchError) {
-				setError('Parking access not found');
+				setError(t('parking_not_found'));
 				return;
 			}
 
 			if (!results || results.length === 0) {
-				setError('Parking access not found');
+				setError(t('parking_not_found'));
 				return;
 			}
 
@@ -54,17 +56,17 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 
 			// Check if access is valid based on calculated status
 			if (currentStatus === 'suspended') {
-				setError('Parking access has been suspended');
+				setError(t('parking_access_suspended'));
 				return;
 			}
 
 			if (currentStatus === 'expired') {
-				setError('Parking access has expired');
+				setError(t('parking_access_expired'));
 				return;
 			}
 
 			if (currentStatus === 'pending') {
-				setError('Parking access is not yet valid');
+				setError(t('parking_access_not_valid'));
 				return;
 			}
 
@@ -85,14 +87,14 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 				},
 			});
 		} catch (err) {
-			setError('Failed to load parking access');
+			setError(t('load_error'));
 		} finally {
 			setLoading(false);
 		}
 	}, [uuid]);
 
 	const openGate = useCallback(async () => {
-		const defaultErrorMessage = 'Failed to open gate, please try again later.';
+		const defaultErrorMessage = t('open_gate_error');
 		if (!parkingInfo || opening) {
 			return;
 		}
@@ -113,7 +115,7 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 						const { context } = error as FunctionsError;
 						const result = await context.json();
 						if (result.error) {
-							errorMessage = result.error;
+							errorMessage = t(result.error);
 						}
 					} catch {
 						/* empty */
@@ -121,12 +123,12 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 				}
 				setLastAction(`Error: ${errorMessage}`);
 			} else if (data.error) {
-				setLastAction(`Error: ${data.error || defaultErrorMessage}`);
+				setLastAction(`Error: ${t(data.error)}`);
 			} else {
-				setLastAction(data.message);
+				setLastAction(t(data.message, { gateName: data.gateName }));
 			}
 		} catch (err: any) {
-			setLastAction(`Error: ${err.message || defaultErrorMessage}`);
+			setLastAction(`Error: ${t(err.message ?? 'internal_server_error')}`);
 		} finally {
 			setOpening(false);
 		}

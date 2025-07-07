@@ -1,22 +1,17 @@
 import React, { ReactNode } from 'react';
 import { useI18nContext } from '@/context/I18nProvider';
 import { ParkingInfo } from '@/types';
+import { useLocalizedDate } from '@/utils/dateUtils';
 
-const formatDate = (dateString: string) => {
-	return new Date(dateString).toLocaleDateString('en-US', {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-	});
-};
-
-type ParkingInfoCardProps = {
+interface ParkingInfoCardProps {
 	parkingInfo: ParkingInfo;
-	children?: ReactNode;
-};
+	children: ReactNode;
+}
 
 const ParkingInfoCard: React.FC<ParkingInfoCardProps> = ({ parkingInfo, children }) => {
 	const { t } = useI18nContext();
+	const { formatDate } = useLocalizedDate();
+
 	return (
 		<div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full animate-in fade-in duration-500 slide-in-from-bottom-4">
 			<div className="text-center mb-8">

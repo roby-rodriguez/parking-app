@@ -2,14 +2,16 @@ import React from 'react';
 import { ColumnDefinition, DataView } from '../shared';
 import { useI18nContext } from '@/context/I18nProvider';
 import { AuditLog } from '@/types';
+import { useLocalizedDate } from '@/utils/dateUtils';
 
 type AuditLogsProps = {
 	auditLogs: AuditLog[];
-	formatDateTime: (dateString: string) => string;
 };
 
-const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs, formatDateTime }) => {
+const AuditLogs: React.FC<AuditLogsProps> = ({ auditLogs }) => {
 	const { t } = useI18nContext();
+	const { formatDateTime } = useLocalizedDate();
+
 	const columns: ColumnDefinition<AuditLog>[] = [
 		{
 			key: 'time',

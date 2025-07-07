@@ -12,28 +12,28 @@ const translations: Record<Lang, Record<string, string>> = { en, ro };
 interface I18nContextType {
 	lang: Lang;
 	setLang: (lang: Lang) => void;
-	t: (key: string) => string;
+	t: (key: string, params?: Record<string, string>) => string;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [lang, setLangState] = useState<Lang>('en');
-
-	useEffect(() => {
-		// On mount, check localStorage or system language
+	const getInitialLang = (): Lang => {
+		// Check localStorage first
 		const stored = localStorage.getItem(LANG_KEY) as Lang | null;
 		if (stored && SUPPORTED_LANGS.includes(stored)) {
-			setLangState(stored);
-		} else {
-			const sys = navigator.language.toLowerCase();
-			if (sys.startsWith('ro')) {
-				setLangState('ro');
-			} else {
-				setLangState('en');
-			}
+			return stored;
 		}
-	}, []);
+
+		// Fall back to system language
+		const sys = navigator.language.toLowerCase();
+		if (sys.startsWith('ro')) {
+			return 'ro';
+		}
+		return 'en';
+	};
+
+	const [lang, setLangState] = useState<Lang>(getInitialLang);
 
 	const setLang = useCallback((l: Lang) => {
 		setLangState(l);
@@ -41,8 +41,17 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	}, []);
 
 	const t = useCallback(
-		(key: string) => {
-			return translations[lang][key] || key;
+		(key: string, params?: Record<string, string>) => {
+			let message = translations[lang][key] || key;
+
+			// Handle dynamic content interpolation
+			if (params) {
+				Object.entries(params).forEach(([paramKey, value]) => {
+					message = message.replace(`{${paramKey}}`, value);
+				});
+			}
+
+			return message;
 		},
 		[lang],
 	);

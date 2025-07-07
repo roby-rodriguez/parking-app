@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useI18nContext } from '@/context/I18nProvider';
 import { supabase } from '@/lib/supabaseClient';
 import { ParkingAccessHistory } from '@/types';
 
@@ -10,6 +11,7 @@ interface UseParkingAccessHistoryReturn {
 }
 
 export const useParkingAccessHistory = (): UseParkingAccessHistoryReturn => {
+	const { t } = useI18nContext();
 	const [parkingAccessHistory, setParkingAccessHistory] = useState<ParkingAccessHistory[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -25,13 +27,13 @@ export const useParkingAccessHistory = (): UseParkingAccessHistoryReturn => {
 				.order('deleted_at', { ascending: false });
 
 			if (fetchError) {
-				setError('Failed to load parking access history');
+				setError(t('load_history_error'));
 				return;
 			}
 
 			setParkingAccessHistory(data || []);
 		} catch (err) {
-			setError('Failed to load parking access history');
+			setError(t('load_history_error'));
 		} finally {
 			setLoading(false);
 		}

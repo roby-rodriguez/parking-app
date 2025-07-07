@@ -15,20 +15,21 @@ export interface ParkingAccessValidation {
  */
 export function validateParkingAccessForm(
 	formData: ParkingAccessFormData,
+	t: (key: string) => string,
 ): ParkingAccessValidation {
 	const errors: ValidationError[] = [];
 
 	// Check if required fields are filled
 	if (!formData.parking_lot_id) {
-		errors.push({ field: 'parking_lot_id', message: 'Please select an apartment' });
+		errors.push({ field: 'parking_lot_id', message: t('please_select_apartment') });
 	}
 
 	if (!formData.valid_from) {
-		errors.push({ field: 'valid_from', message: 'Start date is required' });
+		errors.push({ field: 'valid_from', message: t('start_date_required') });
 	}
 
 	if (!formData.valid_to) {
-		errors.push({ field: 'valid_to', message: 'End date is required' });
+		errors.push({ field: 'valid_to', message: t('end_date_required') });
 	}
 
 	// If we have both dates, validate them
@@ -42,7 +43,7 @@ export function validateParkingAccessForm(
 		if (fromDate < today) {
 			errors.push({
 				field: 'valid_from',
-				message: 'Start date must be today or in the future',
+				message: t('start_date_must_be_today_or_future'),
 			});
 		}
 
@@ -53,7 +54,7 @@ export function validateParkingAccessForm(
 		if (toDate < minEndDate) {
 			errors.push({
 				field: 'valid_to',
-				message: 'End date must be at least 1 day after start date',
+				message: t('end_date_min_one_night'),
 			});
 		}
 	}
