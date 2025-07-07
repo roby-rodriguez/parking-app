@@ -54,6 +54,7 @@
   "loading_parking_access": "Încărcare acces parcare",
   "open_gate": "Deschide Poarta",
   "opening_gate": "Se deschide poarta...",
+  "loading": "Se încarcă...",
   "welcome": "Bun venit",
   "open_gate_info": "Acest acces este valabil pentru întreaga ta ședere.",
   "warning_emoji_label": "Avertisment",
@@ -62,5 +63,9 @@
   "parking_error_message": "Te rugăm să contactezi recepția pentru asistență.",
   "retry_loading_parking_access": "Reîncearcă să încarci accesul la parcare",
   "retry": "Încearcă din nou",
-  "parking_not_found_title": "Accesul la parcare nu a fost găsit."
+  "parking_not_found_title": "Accesul la parcare nu a fost găsit.",
+  "parking_admin_login": "Autentificare Administrator Parcare",
+  "email_address": "Adresă email",
+  "password": "Parolă",
+  "sign_in": "Autentificare"
 }

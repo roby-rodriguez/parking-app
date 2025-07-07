@@ -54,6 +54,7 @@
   "loading_parking_access": "Loading parking access",
   "open_gate": "Open Gate",
   "opening_gate": "Opening gate...",
+  "loading": "Loading...",
   "welcome": "Welcome",
   "open_gate_info": "This access is valid for your entire stay.",
   "warning_emoji_label": "Warning",
@@ -62,5 +63,9 @@
   "parking_error_message": "Please contact the front desk for assistance.",
   "retry_loading_parking_access": "Retry loading parking access",
   "retry": "Try Again",
-  "parking_not_found_title": "Parking access not found."
+  "parking_not_found_title": "Parking access not found.",
+  "parking_admin_login": "Parking Admin Login",
+  "email_address": "Email address",
+  "password": "Password",
+  "sign_in": "Sign in"
 }

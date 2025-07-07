@@ -31,7 +31,7 @@ const OpenGateButton: React.FC<OpenGateButtonProps> = ({
 				{loading ? (
 					<div className="flex items-center justify-center">
 						<div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" aria-hidden="true"></div>
-						t('opening_gate')
+						{t('opening_gate')}
 					</div>
 				) : (
 					t('open_gate')

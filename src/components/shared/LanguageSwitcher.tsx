@@ -12,7 +12,7 @@ const LanguageSwitcher: React.FC = () => {
 		<select
 			value={lang}
 			onChange={(e) => setLang(e.target.value as 'en' | 'ro')}
-			className="px-4 py-2 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-[40px]"
+			className="px-4 py-2 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-[36px]"
 			style={{ minWidth: 44 }}
 			aria-label="Language"
 		>
