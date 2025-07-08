@@ -12,7 +12,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onSignOut }) => {
 		<div className="px-6 py-4 border-b border-gray-200">
 			<div className="flex justify-between items-center">
 				<h1 className="text-2xl font-bold text-gray-900 max-[500px]:hidden">{t('admin')}</h1>
-				<div className="flex items-center space-x-2">
+				<div className="flex items-center space-x-2 max-[500px]:justify-between max-[500px]:flex-1">
 					<LanguageSwitcher />
 					<button
 						onClick={onSignOut}
