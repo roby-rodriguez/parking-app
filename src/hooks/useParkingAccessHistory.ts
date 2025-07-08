@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useI18nContext } from '@/context/I18nProvider';
 import { supabase } from '@/lib/supabaseClient';
 import { ParkingAccessHistory } from '@/types';
@@ -38,10 +38,6 @@ export const useParkingAccessHistory = (): UseParkingAccessHistoryReturn => {
 			setLoading(false);
 		}
 	};
-
-	useEffect(() => {
-		fetchParkingAccessHistory();
-	}, []);
 
 	return {
 		parkingAccessHistory,

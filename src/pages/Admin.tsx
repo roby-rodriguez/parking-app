@@ -17,7 +17,6 @@ import {
 	useAuth,
 	useParkingAccess,
 	useParkingAccessHistory,
-	useParkingLots,
 } from '@/hooks';
 import { LoginData, ParkingAccess, ParkingAccessFormData } from '@/types';
 
@@ -25,17 +24,22 @@ export default function Admin() {
 	const { t } = useI18nContext();
 	const { show: showToast } = useToastContext();
 	const { session, loading: authLoading, login, logout } = useAuth();
-	const { parkingLots, loading: lotsLoading } = useParkingLots();
 	const {
 		parkingAccess,
+		parkingLots,
 		loading: accessLoading,
 		createParkingAccess,
 		suspendParkingAccess,
 		deleteParkingAccess,
 		resumeParkingAccess,
 		updateParkingAccess,
+		refetch: refetchParkingAccess,
 	} = useParkingAccess();
-	const { auditLogs, loading: logsLoading } = useAuditLogs();
+	const {
+		auditLogs,
+		loading: logsLoading,
+		refetch: refetchAuditLogs,
+	} = useAuditLogs();
 	const {
 		parkingAccessHistory,
 		loading: historyLoading,
@@ -75,7 +79,7 @@ export default function Admin() {
 
 		if (editingId) {
 			// Update existing parking access
-			const { error } = await updateParkingAccess(editingId, formDataWithTime, t);
+			const { error } = await updateParkingAccess(editingId, formDataWithTime);
 			if (!error) {
 				showToast(t('parking_access_updated_successfully'), 'success');
 				setEditingId(null);
@@ -90,7 +94,7 @@ export default function Admin() {
 			}
 		} else {
 			// Create new parking access
-			const { error } = await createParkingAccess(formDataWithTime, t);
+			const { error } = await createParkingAccess(formDataWithTime);
 			if (!error) {
 				showToast(t('parking_access_created_successfully'), 'success');
 				setFormData({
@@ -126,7 +130,7 @@ export default function Admin() {
 	};
 
 	const handleSuspend = async (id: string) => {
-		const { error } = await suspendParkingAccess(id, t);
+		const { error } = await suspendParkingAccess(id);
 		if (!error) {
 			showToast(t('parking_access_suspended'), 'success');
 		} else {
@@ -135,7 +139,7 @@ export default function Admin() {
 	};
 
 	const handleDelete = async (id: string) => {
-		const { error } = await deleteParkingAccess(id, t);
+		const { error } = await deleteParkingAccess(id);
 		if (!error) {
 			showToast(t('parking_access_deleted'), 'success');
 		} else {
@@ -144,7 +148,7 @@ export default function Admin() {
 	};
 
 	const handleResume = async (id: string) => {
-		const { error } = await resumeParkingAccess(id, t);
+		const { error } = await resumeParkingAccess(id);
 		if (!error) {
 			showToast(t('parking_access_resumed'), 'success');
 		} else {
@@ -160,6 +164,14 @@ export default function Admin() {
 			}));
 		}
 	}, [parkingLots]);
+
+	useEffect(() => {
+		if (session) {
+			refetchParkingAccess();
+			refetchAuditLogs();
+			refetchHistory();
+		}
+	}, [session]);
 
 	if (authLoading) {
 		return (
@@ -180,7 +192,7 @@ export default function Admin() {
 		);
 	}
 
-	const isLoading = lotsLoading || accessLoading || logsLoading || historyLoading;
+	const isLoading = accessLoading || logsLoading || historyLoading;
 
 	return (
 		<div className="flex flex-col min-h-screen h-full bg-gray-50 p-2 sm:p-4 lg:p-6">
@@ -209,7 +221,7 @@ export default function Admin() {
 											onSuspend={handleSuspend}
 											onDelete={handleDelete}
 											onResume={handleResume}
-											refetchHistory={(t) => refetchHistory(t)}
+											refetchHistory={refetchHistory}
 										/>
 									</ConfirmDialogProvider>
 								</div>

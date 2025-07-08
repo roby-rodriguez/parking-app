@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { AuditLog } from '@/types';
 
@@ -39,10 +39,6 @@ export const useAuditLogs = (limit: number = 50): UseAuditLogsReturn => {
 			setLoading(false);
 		}
 	};
-
-	useEffect(() => {
-		fetchAuditLogs();
-	}, [limit]);
 
 	return {
 		auditLogs,
