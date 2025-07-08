@@ -14,7 +14,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ loginData, loginError, onChange
 
 	return (
 		<div className="min-h-screen h-full flex items-center justify-center bg-gray-50">
-			<div className="max-w-md w-full space-y-8">
+			<div className="max-w-md w-full space-y-8 px-4">
 				<div>
 					<h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
 						{t('parking_admin_login')}
