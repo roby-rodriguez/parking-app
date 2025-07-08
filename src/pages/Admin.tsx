@@ -69,8 +69,8 @@ export default function Admin() {
 		// Append 12:00 time to dates before submitting
 		const formDataWithTime = {
 			...formData,
-			valid_from: formData.valid_from ? `${formData.valid_from}T12:00:00` : '',
-			valid_to: formData.valid_to ? `${formData.valid_to}T12:00:00` : '',
+			valid_from: formData.valid_from ? `${formData.valid_from}T09:00:00` : '',
+			valid_to: formData.valid_to ? `${formData.valid_to}T09:00:00` : '',
 		};
 
 		if (editingId) {
