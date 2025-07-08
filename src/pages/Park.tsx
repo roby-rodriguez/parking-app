@@ -31,7 +31,7 @@ const Park = () => {
 
 	return (
 		<div className="min-h-screen h-full bg-gray-50 flex items-center justify-center p-4">
-			<div className="fixed top-4 right-4 z-50 px-2">
+			<div className="fixed top-4 right-4 z-50">
 				<LanguageSwitcher />
 			</div>
 			<ParkingInfoCard parkingInfo={parkingInfo}>

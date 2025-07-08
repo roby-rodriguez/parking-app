@@ -11,7 +11,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onSignOut }) => {
 	return (
 		<div className="px-6 py-4 border-b border-gray-200">
 			<div className="flex justify-between items-center">
-				<h1 className="text-2xl font-bold text-gray-900">{t('admin')}</h1>
+				<h1 className="text-2xl font-bold text-gray-900 max-[500px]:hidden">{t('admin')}</h1>
 				<div className="flex items-center space-x-2">
 					<LanguageSwitcher />
 					<button

@@ -2,8 +2,8 @@ import React from 'react';
 import { ActionDefinition, ColumnDefinition, DataView } from '../shared';
 import { useConfirmContext } from '@/context/ConfirmDialogProvider';
 import { useI18nContext } from '@/context/I18nProvider';
-import { useLocalizedDate } from '@/utils/dateUtils';
 import { ParkingAccess } from '@/types';
+import { useLocalizedDate } from '@/utils/dateUtils';
 import { getEffectiveStatus, getStatusColorClasses, getStatusLabel } from '@/utils/statusUtils';
 
 type ParkingAccessListProps = {
@@ -217,7 +217,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 				{/* Apartment and Valid Period */}
 				<div className="flex items-center space-x-2">
 					<span className="text-sm font-medium text-gray-900">
-						Ap. {item.parking_lots.apartment}:
+						Ap. {item.parking_lots?.apartment}:
 					</span>
 					<span className="text-sm text-gray-600">
 						{formatDate(item.valid_from)} - {formatDate(item.valid_to)}
