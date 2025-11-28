@@ -17,6 +17,7 @@ import {
 	useAuth,
 	useParkingAccess,
 	useParkingAccessHistory,
+	useParkingLots,
 } from '@/hooks';
 import { LoginData, ParkingAccess, ParkingAccessFormData } from '@/types';
 
@@ -26,7 +27,6 @@ export default function Admin() {
 	const { session, loading: authLoading, login, logout } = useAuth();
 	const {
 		parkingAccess,
-		parkingLots,
 		loading: accessLoading,
 		createParkingAccess,
 		suspendParkingAccess,
@@ -35,6 +35,11 @@ export default function Admin() {
 		updateParkingAccess,
 		refetch: refetchParkingAccess,
 	} = useParkingAccess();
+	const {
+		parkingLots,
+		loading: parkingLotsLoading,
+		refetch: refetchParkingLots,
+	} = useParkingLots();
 	const {
 		auditLogs,
 		loading: logsLoading,
@@ -168,6 +173,7 @@ export default function Admin() {
 	useEffect(() => {
 		if (session) {
 			refetchParkingAccess();
+			refetchParkingLots();
 			refetchAuditLogs();
 			refetchHistory();
 		}
@@ -192,7 +198,7 @@ export default function Admin() {
 		);
 	}
 
-	const isLoading = accessLoading || logsLoading || historyLoading;
+	const isLoading = accessLoading || logsLoading || historyLoading || parkingLotsLoading;
 
 	return (
 		<div className="flex flex-col min-h-screen h-full bg-gray-50 p-2 sm:p-4 lg:p-6">

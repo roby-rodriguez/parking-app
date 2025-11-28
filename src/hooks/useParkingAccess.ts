@@ -1,12 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useI18nContext } from '@/context/I18nProvider';
 import { supabase } from '@/lib/supabaseClient';
-import { ParkingAccess, ParkingAccessFormData, ParkingLot } from '@/types';
+import { ParkingAccess, ParkingAccessFormData } from '@/types';
 import { getEffectiveStatus } from '@/utils/statusUtils';
 
 interface UseParkingAccessReturn {
 	parkingAccess: ParkingAccess[];
-	parkingLots: ParkingLot[];
 	loading: boolean;
 	error: string | null;
 	createParkingAccess: (formData: ParkingAccessFormData) => Promise<{ error: string | null }>;
@@ -25,25 +24,6 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 	const [parkingAccess, setParkingAccess] = useState<ParkingAccess[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-
-	// Extract unique parking lots from parking access data
-	const parkingLots = useMemo(() => {
-		const uniqueLots = new Map<number, ParkingLot>();
-
-		parkingAccess.forEach(access => {
-			if (access.parking_lots && !uniqueLots.has(access.parking_lot_id)) {
-				uniqueLots.set(access.parking_lot_id, {
-					id: access.parking_lot_id,
-					name: access.parking_lots.name,
-					apartment: access.parking_lots.apartment,
-					gate_id: 0, // This would need to be added to the query if needed
-					gates: { name: access.parking_lots.gates.name },
-				});
-			}
-		});
-
-		return Array.from(uniqueLots.values());
-	}, [parkingAccess]);
 
 	const fetchParkingAccess = async () => {
 		setLoading(true);
@@ -228,7 +208,6 @@ export const useParkingAccess = (): UseParkingAccessReturn => {
 
 	return {
 		parkingAccess,
-		parkingLots,
 		loading,
 		error,
 		createParkingAccess,
