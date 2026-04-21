@@ -76,6 +76,7 @@ export const useParkingInfo = (uuid: string | undefined): UseParkingInfoReturn =
 				guest_name: data.guest_name,
 				valid_from: data.valid_from,
 				valid_to: data.valid_to,
+				is_tenant: data.is_tenant ?? false,
 				parking_lots: {
 					name: data.parking_lot_name,
 					apartment: data.parking_lot_apartment,

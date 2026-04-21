@@ -35,6 +35,17 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 			render: (item) => item.guest_name || '-',
 		},
 		{
+			key: 'is_tenant',
+			label: 'Tenant',
+			width: 'w-20',
+			render: (item) =>
+				item.is_tenant ? (
+					<span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+						Tenant
+					</span>
+				) : null,
+		},
+		{
 			key: 'parking_lot',
 			label: t('parking_lot'),
 			width: 'w-32',
@@ -235,7 +246,7 @@ const ParkingAccessList: React.FC<ParkingAccessListProps> = ({
 			actions={actions}
 			emptyMessage={t('no_records')}
 			cardHeaderRenderer={cardHeaderRenderer}
-			cardContentKeys={['status', 'guest', 'parking_lot', 'gate']}
+			cardContentKeys={['status', 'guest', 'is_tenant', 'parking_lot', 'gate']}
 		/>
 	);
 };

@@ -43,7 +43,7 @@ const Park = () => {
 				/>
 				<div className="text-center">
 					<p className="text-xs text-gray-500">
-						{t('open_gate_info')}
+						{parkingInfo.is_tenant ? t('open_gate_info_tenant') : t('open_gate_info')}
 					</p>
 				</div>
 			</ParkingInfoCard>

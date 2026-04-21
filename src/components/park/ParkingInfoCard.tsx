@@ -21,7 +21,7 @@ const ParkingInfoCard: React.FC<ParkingInfoCardProps> = ({ parkingInfo, children
 				<h1 className="text-2xl font-bold text-gray-900 mb-2">{t('parking_access')}</h1>
 				{parkingInfo.guest_name && (
 					<p className="text-gray-600">
-						{t('welcome')}, {parkingInfo.guest_name}
+						{parkingInfo.is_tenant ? t('greeting_tenant') : t('welcome')}, {parkingInfo.guest_name}
 					</p>
 				)}
 			</div>
@@ -53,14 +53,18 @@ const ParkingInfoCard: React.FC<ParkingInfoCardProps> = ({ parkingInfo, children
 						</span>
 					</div>
 				</div>
-				<div className="bg-green-50 p-4 rounded-lg border border-green-100">
-					<div className="text-center">
-						<p className="text-gray-600 text-sm mb-1">{t('valid_period')}</p>
-						<p className="font-semibold text-green-900">
-							{formatDate(parkingInfo.valid_from)} -{' '}{formatDate(parkingInfo.valid_to)}
-						</p>
-					</div>
+			<div className="bg-green-50 p-4 rounded-lg border border-green-100">
+				<div className="text-center">
+					<p className="text-gray-600 text-sm mb-1">
+						{parkingInfo.is_tenant ? t('valid_until') : t('valid_period')}
+					</p>
+					<p className="font-semibold text-green-900">
+						{parkingInfo.is_tenant
+							? formatDate(parkingInfo.valid_to)
+							: `${formatDate(parkingInfo.valid_from)} - ${formatDate(parkingInfo.valid_to)}`}
+					</p>
 				</div>
+			</div>
 			</div>
 			{children}
 		</div>

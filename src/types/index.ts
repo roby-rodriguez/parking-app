@@ -7,6 +7,7 @@ export interface ParkingAccess {
 	valid_to: string;
 	status: 'active' | 'suspended' | 'expired' | 'pending';
 	parking_lot_id: number;
+	is_tenant: boolean;
 	parking_lots: {
 		name: string;
 		apartment: string;
@@ -28,6 +29,7 @@ export interface ParkingAccessHistory {
 	valid_to: string;
 	status: 'active' | 'suspended' | 'expired' | 'pending';
 	parking_lot_id: number;
+	is_tenant: boolean;
 	created_at: string;
 	deleted_at: string;
 	deleted_by: string | null;
@@ -78,6 +80,7 @@ export interface ParkingInfo {
 	guest_name: string | null;
 	valid_from: string;
 	valid_to: string;
+	is_tenant: boolean;
 	parking_lots: {
 		name: string;
 		apartment: string;
@@ -100,4 +103,5 @@ export interface ParkingAccessFormData {
 	parking_lot_id: number;
 	valid_from: string;
 	valid_to: string;
+	is_tenant: boolean;
 }

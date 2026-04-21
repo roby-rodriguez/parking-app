@@ -140,11 +140,22 @@ const ParkingAccessForm: React.FC<ParkingAccessFormProps> = ({
 						<p className="text-xs text-red-500 mt-1">{getFieldError('valid_to')}</p>
 					)}
 				</div>
-			</div>
-			<div className="mt-4 flex space-x-3">
-				<button
-					onClick={handleSubmit}
-					disabled={errors.length > 0}
+		</div>
+		<div className="mt-4 flex items-center space-x-6">
+			<label className="flex items-center space-x-2 cursor-pointer select-none">
+				<input
+					type="checkbox"
+					checked={formData.is_tenant}
+					onChange={(e) => onChange({ ...formData, is_tenant: e.target.checked })}
+					className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+				/>
+				<span className="text-sm text-gray-700">{t('tenant')}</span>
+			</label>
+		</div>
+		<div className="mt-4 flex space-x-3">
+			<button
+				onClick={handleSubmit}
+				disabled={errors.length > 0}
 					className={`px-4 py-2 rounded-md ${
 						errors.length > 0
 							? 'bg-gray-300 text-gray-500 cursor-not-allowed'

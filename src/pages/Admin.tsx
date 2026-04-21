@@ -62,6 +62,7 @@ export default function Admin() {
 		parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
 		valid_from: '',
 		valid_to: '',
+		is_tenant: false,
 	});
 	const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -93,6 +94,7 @@ export default function Admin() {
 					parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
 					valid_from: '',
 					valid_to: '',
+					is_tenant: false,
 				});
 			} else {
 				showToast(error, 'error');
@@ -107,6 +109,7 @@ export default function Admin() {
 					parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
 					valid_from: '',
 					valid_to: '',
+					is_tenant: false,
 				});
 			} else {
 				showToast(error, 'error');
@@ -121,6 +124,7 @@ export default function Admin() {
 			parking_lot_id: parkingLots.length > 0 ? parkingLots[0].id : 0,
 			valid_from: '',
 			valid_to: '',
+			is_tenant: false,
 		});
 	};
 
@@ -130,6 +134,7 @@ export default function Admin() {
 			parking_lot_id: item.parking_lot_id,
 			valid_from: item.valid_from.split('T')[0],
 			valid_to: item.valid_to.split('T')[0],
+			is_tenant: item.is_tenant,
 		});
 		setEditingId(item.id);
 	};
